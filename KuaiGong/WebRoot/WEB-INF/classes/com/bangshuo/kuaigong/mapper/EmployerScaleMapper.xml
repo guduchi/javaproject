@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerScaleMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployerScale" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="credits" property="credits" jdbcType="VARCHAR" />
+    <result column="presentintegral" property="presentintegral" jdbcType="VARCHAR" />
+    <result column="count" property="count" jdbcType="VARCHAR" />
+ </resultMap>
+ <resultMap type="com.bangshuo.kuaigong.po.EmployerScaleToUser" id="EmployerScaleToUser" extends="BaseResultMap">
+ 
+   <result column="username" property="username"/>
+   <result column="name" property="name"/>
+ </resultMap>
+  <sql id="Base_Column_List" >
+    id, erid,  credits, presentintegral
+  </sql>
+   
+  <!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerScale">
+		SELECT COUNT(id) as count from employer_scale
+	</select>
+  
+  
+<!-- 跳评价 -->
+<select id="queryByID" resultMap="EmployerScaleToUser">
+ 	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where employer_user.id=employer_scale.erid
+   
+   and  name like #{name,jdbcType=VARCHAR}
+</select>
+<!-- 查评价总数 -->
+<select id="queryByID1" resultMap="EmployerScaleToUser">
+ 	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where employer_user.id=employer_scale.erid
+   
+   and  name like #{name,jdbcType=VARCHAR}
+</select>
+<!-- 查评价分页-->
+<select id="queryByIDPagGe" resultMap="EmployerScaleToUser">
+ 	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where employer_user.id=employer_scale.erid
+   
+   and  name like #{name,jdbcType=VARCHAR} limit #{page},#{pageSize}
+</select>
+  <select id="queryPage" resultMap="EmployerScaleToUser">
+   select employer_scale.id,employer_scale.erid,employer_user.username,employer_user.name,employer_scale.credits,employer_scale.presentintegral
+  from employer_scale,employer_user
+  where employer_scale.erid=employer_user.id  and employer_scale.erid=#{id,jdbcType=INTEGER}
+  </select>
+  
+
+   <select id="queryByPage" resultMap="EmployerScaleToUser">
+     select employer_scale.id,employer_scale.erid,employer_user.username,employer_user.name,employer_scale.credits,employer_scale.presentintegral
+  from employer_scale,employer_user
+  where employer_scale.erid=employer_user.id and employer_scale.erid=#{id,jdbcType=INTEGER}
+  limit #{page},#{pageSize}
+  </select>
+
+  
+  <select id="selectById" resultMap="EmployerScaleToUser">
+  select employer_scale.id,employer_user.name,employer_scale.credits,employer_scale.presentintegral
+  from employer_scale,employer_user
+  where employer_scale.erid=employer_user.id and employer_scale.id=#{id,jdbcType=INTEGER}
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKeyScanle1" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select employer_scale.grade
+    from employer_scale
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+ 
+  
+   <select id="selectByPrimaryKeyScanle" resultMap="EmployerScaleToUser" parameterType="java.lang.Integer" >
+    	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where employer_user.id=employer_scale.erid
+  and employer_scale.id = #{id,jdbcType=INTEGER}
+  </select>
+ 
+  
+    <select id="selectByPage1" resultMap="EmployerScaleToUser" parameterType="java.lang.Integer">
+	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where  1=1
+	<if test=" username != null">
+	and name like '%' #{username,jdbcType=VARCHAR} '%'
+	</if>
+ and  employer_user.id=employer_scale.erid
+   order by id desc
+    limit #{page},#{pageSize}
+  </select>
+    
+  
+	<select id="selectPage1" resultMap="EmployerScaleToUser">
+	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where  1=1
+	<if test=" username != null">
+	and name like '%' #{username,jdbcType=VARCHAR} '%'
+	</if>
+and  employer_user.id=employer_scale.erid
+order by id desc
+	
+   
+	</select>
+	
+  <select id="selectByPrimaryKey" resultMap="EmployerScaleToUser" parameterType="java.lang.Integer" >
+     	select employer_scale.id,employer_scale.credits, employer_scale.presentintegral,employer_user.name
+	
+	from employer_scale,employer_user
+	
+	where employer_user.id=employer_scale.erid
+  and id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select * from employer_scale limit #{page},
+  	#{pageSize}
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+	select
+	<include refid="Base_Column_List" />
+	from  employer_scale
+	</select>
+  
+  <select id="selectByUsernmaeOrName" resultMap="BaseResultMap" parameterType="java.lang.String">
+  	select * from employer_scale where erid like #{name,jdbcType=VARCHAR} OR name like #{name,jdbcType=VARCHAR};
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from employer_scale
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.EmployerScale" >
+    insert into employer_scale (id, erid, 
+      credits, presentintegral)
+    values (#{id,jdbcType=INTEGER}, #{erid,jdbcType=INTEGER}, 
+      #{credits,jdbcType=VARCHAR}, #{presentintegral,jdbcType=VARCHAR})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.EmployerScale" >
+    insert into employer_scale
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="erid != null" >
+        erid,
+      </if>
+     
+      <if test="credits != null" >
+        credits,
+      </if>
+      <if test="presentintegral != null" >
+        presentintegral,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="erid != null" >
+        #{erid,jdbcType=INTEGER},
+      </if>
+    
+      <if test="credits != null" >
+        #{credits,jdbcType=VARCHAR},
+      </if>
+      <if test="presentintegral != null" >
+        #{presentintegral,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.EmployerScale" >
+    update employer_scale
+    <set >
+      <if test="erid != null" >
+        erid = #{erid,jdbcType=INTEGER},
+      </if>
+      
+      <if test="credits != null" >
+        credits = #{credits,jdbcType=VARCHAR},
+      </if>
+      <if test="presentintegral != null" >
+        presentintegral = #{presentintegral,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.EmployerScale" >
+    update employer_scale
+    set erid = #{erid,jdbcType=INTEGER},
+     
+      credits = #{credits,jdbcType=VARCHAR},
+      presentintegral = #{presentintegral,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

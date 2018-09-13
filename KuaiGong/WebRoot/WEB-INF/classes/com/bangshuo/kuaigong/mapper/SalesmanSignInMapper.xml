@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.SalesmanSignInMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="salesmanId" property="salesmanId" jdbcType="INTEGER" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
+		<result column="latitude" property="latitude" jdbcType="VARCHAR" />
+		<result column="longitude" property="longitude" jdbcType="VARCHAR" />
+		<result column="site" property="site" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap type="com.bangshuo.kuaigong.po.SalesmanSignInToUser"
+		id="selectSalesmanSignIn" extends="BaseResultMap">
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="salesmanName" property="salesmanName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, salesmanId, time, latitude, longitude, site
+	</sql>
+  
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap"
+		parameterType="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		SELECT COUNT(salesman_sign_in.id) as count,
+				salesman.salesmanName,
+				salesman.username
+from salesman_sign_in
+LEFT JOIN salesman on salesman_sign_in.salesmanId = salesman.id
+where 1=1
+		<if test="salesmanName !=null">
+			and salesman.salesmanName like 
+			#{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and salesman.username like 
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="starttime !=null ">
+		<![CDATA[
+		and salesman_sign_in.time >=#{starttime,jdbcType=VARCHAR}
+		 ]]>
+		</if>
+		<if test="endtime !=null">
+		<![CDATA[ 
+		 AND salesman_sign_in.time <=#{endtime,jdbcType=VARCHAR}
+		  ]]>
+		</if>
+		<if test="status !=null">
+			and salesman_sign_in.status=#{status,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 查询签到 -->
+	<select id="selectSignIn" resultMap="selectSalesmanSignIn">
+		SELECT
+		salesman_sign_in.id,
+		salesman_sign_in.salesmanId,
+		salesman_sign_in.latitude,
+		salesman_sign_in.longitude,
+		salesman_sign_in.site,
+		salesman_sign_in.time,
+		salesman_sign_in.status,
+		salesman.username,
+		salesman.salesmanName
+		FROM
+		salesman_sign_in
+		LEFT JOIN
+		salesman ON salesman_sign_in.salesmanId = salesman.id
+		where 1=1
+		<if test="salesmanName !=null">
+			and salesman.salesmanName like 
+			#{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and salesman.username like 
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="starttime !=null ">
+<![CDATA[
+and salesman_sign_in.time >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+		</if>
+		<if test="endtime !=null">
+<![CDATA[ 
+ AND salesman_sign_in.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		<if test="status !=null">
+			and salesman_sign_in.status=#{status,jdbcType=VARCHAR}
+		</if>
+		<!-- GROUP BY salesman_sign_in.time desc -->
+	</select>
+
+
+	<!-- 查询签到分页 -->
+	<select id="selectSignInPage" resultMap="selectSalesmanSignIn">
+		SELECT
+		salesman_sign_in.id,
+		salesman_sign_in.salesmanId,
+		salesman_sign_in.latitude,
+		salesman_sign_in.longitude,
+		salesman_sign_in.site,
+		salesman_sign_in.time,
+		salesman_sign_in.status,
+		salesman.username,
+		salesman.salesmanName
+		FROM
+		salesman_sign_in
+		LEFT JOIN
+		salesman ON salesman_sign_in.salesmanId = salesman.id
+		where 1=1
+		<if test="salesmanName !=null">
+			and salesman.salesmanName like 
+			#{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and salesman.username like 
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="starttime !=null ">
+<![CDATA[
+and salesman_sign_in.time >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+		</if>
+		<if test="endtime !=null">
+<![CDATA[ 
+ AND salesman_sign_in.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		<if test="status !=null">
+			and salesman_sign_in.status=#{status,jdbcType=VARCHAR}
+		</if>
+		<!-- GROUP BY salesman_sign_in.time desc -->
+		limit #{page},#{pageSize}
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from salesman_sign_in
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		salesman_sign_in
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		insert into salesman_sign_in
+		(id, salesmanId, time,
+		latitude, longitude, site
+		)
+		values
+		(#{id,jdbcType=INTEGER}, #{salesmanid,jdbcType=INTEGER},
+		#{time,jdbcType=VARCHAR},
+		#{latitude,jdbcType=VARCHAR},
+		#{longitude,jdbcType=VARCHAR}, #{site,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		insert into salesman_sign_in
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="salesmanid != null">
+				salesmanId,
+			</if>
+			<if test="time != null">
+				time,
+			</if>
+			<if test="latitude != null">
+				latitude,
+			</if>
+			<if test="longitude != null">
+				longitude,
+			</if>
+			<if test="site != null">
+				site,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="salesmanid != null">
+				#{salesmanid,jdbcType=INTEGER},
+			</if>
+			<if test="time != null">
+				#{time,jdbcType=VARCHAR},
+			</if>
+			<if test="latitude != null">
+				#{latitude,jdbcType=VARCHAR},
+			</if>
+			<if test="longitude != null">
+				#{longitude,jdbcType=VARCHAR},
+			</if>
+			<if test="site != null">
+				#{site,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		update salesman_sign_in
+		<set>
+			<if test="salesmanid != null">
+				salesmanId = #{salesmanid,jdbcType=INTEGER},
+			</if>
+			<if test="time != null">
+				time = #{time,jdbcType=VARCHAR},
+			</if>
+			<if test="latitude != null">
+				latitude = #{latitude,jdbcType=VARCHAR},
+			</if>
+			<if test="longitude != null">
+				longitude = #{longitude,jdbcType=VARCHAR},
+			</if>
+			<if test="site != null">
+				site = #{site,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.SalesmanSignIn">
+		update
+		salesman_sign_in
+		set salesmanId = #{salesmanid,jdbcType=INTEGER},
+		time =
+		#{time,jdbcType=VARCHAR},
+		latitude = #{latitude,jdbcType=VARCHAR},
+		longitude = #{longitude,jdbcType=VARCHAR},
+		site =
+		#{site,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

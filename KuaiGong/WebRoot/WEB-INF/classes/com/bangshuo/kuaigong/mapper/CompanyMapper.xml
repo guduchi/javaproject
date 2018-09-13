@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.CompanyMapper">
+<resultMap id="BaseResultMap"  type="com.bangshuo.kuaigong.po.Company" >
+           <id column="id" property="id" jdbcType="INTEGER" />
+            <result column="name" property="name" jdbcType="VARCHAR"/> 
+            <result column="principal" property="principal" jdbcType="VARCHAR"/> 
+            <result column="tel" property="tel" jdbcType="VARCHAR"/> 
+            <result column="address" property="address" jdbcType="VARCHAR"/> 
+            <result column="content" property="content" jdbcType="VARCHAR"/> 
+            <result column="time" property="time" jdbcType="VARCHAR"/> 
+            <result column="company" property="company" jdbcType="VARCHAR"/> 
+</resultMap>
+<sql id="Base_Column_List">
+id,name,principal,tel,address,content
+</sql>
+
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.Company">
+		SELECT COUNT(id) as count from company
+		where 1=1
+		<if test=" query !=null">
+		and principal like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+	</select>
+
+<!-- 查询 -->
+<select id="selectAll" resultMap="BaseResultMap">
+select * FROM company 
+where 1=1
+<if test=" query !=null">
+and principal like '%' #{query,jdbcType=VARCHAR} '%'
+</if>
+</select>
+<!-- 查询分页 -->
+<select id="selectAllPage" resultMap="BaseResultMap" >
+select * FROM company 
+where 1=1
+<if test=" query !=null">
+and principal like '%' #{query,jdbcType=VARCHAR} '%'
+</if>
+  limit #{page},
+#{pageSize}
+</select>
+<!-- 根据姓名查询 -->
+<select id="selectName" resultMap="BaseResultMap" >
+SELECT * FROM company
+WHERE company.name LIKE #{name,jdbcType=VARCHAR}
+</select>
+<!-- 根据姓名查询分页 -->
+<select id="selectNamePage" resultMap="BaseResultMap" >
+SELECT * FROM company
+WHERE company.name LIKE #{name,jdbcType=VARCHAR}
+  limit #{page},
+#{pageSize}
+</select>
+<!-- 删除 -->
+<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from company
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<!-- 修改 -->
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.Company">
+		update company
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+
+			<if test="principal != null">
+				principal = #{principal,jdbcType=VARCHAR},
+			</if>
+
+			<if test="tel != null">
+				tel = #{tel,jdbcType=VARCHAR},
+			</if>
+
+			<if test="content != null">
+				content = #{content,jdbcType=VARCHAR},
+			</if>
+
+			<if test="time != null">
+				age = #{age,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

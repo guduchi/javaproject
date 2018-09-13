@@ -1,0 +1,83 @@
+body{padding: 0px;
+    margin: 0px;
+    line-height: 1.6;
+    font-family: "Helvetica Neue","Hiragino Sans GB","Microsoft YaHei","\9ED1\4F53",Arial,sans-serif !important;
+    color: #222;
+    font-size: 14px;
+}
+ul li{
+	list-style-type:none;
+}
+input{
+    transition: all 0.30s ease-in-out;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    padding-left:10px;
+    height: 34px;
+    width: 200px;
+}
+input:focus{
+    border:1px solid rgb(55, 182, 238);;
+    box-shadow: 0 0 2px rgb(33, 162, 238);
+    -webkit-box-shadow: 0 0 2px rgb(33, 162, 238);
+    -moz-box-shadow: 0 0 2px rgb(33, 162, 238);
+}
+.div_from_aoto{
+    margin-left: auto;
+    margin-right: auto;
+    padding-left:10px;
+    margin-top: 30px;
+}
+.laber_from{
+    width: 100px;
+    float: left;
+    line-height: 35px;
+    color: #222;
+    font-weight: normal;
+}
+.control-group{
+    padding-bottom: 10px;
+}
+ .input_select{
+    width: 100px;
+    height: 30px;
+    cursor: pointer;
+}
+#button_logo{
+	border-style:none;
+	padding:8px 10px;
+	line-height:24px;
+	width: 120px;
+	height: 32px;
+	color:#fff;
+	font:12px "Microsoft YaHei", Verdana, Geneva, sans-serif;
+	cursor:pointer;
+	border:1px #444 solid;
+	-webkit-box-shadow:inset 0px 0px 1px #fff;
+	-moz-box-shadow:inset 0px 0px 1px #fff;
+	box-shadow:inset 0px 0px 1px #fff;/*鍐呭彂鍏夋晥鏋�/
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	border-radius:4px;/*杈规鍦嗚*/
+	text-shadow:1px 1px 0px #444;/*瀛椾綋闃村奖鏁堟灉*/
+	background-color:#444;
+	float: left;
+}
+
+/* updateEmployeePassword */
+#userInfo ul{margin-top:38px;}
+#userInfo ul li{margin:10px 0 0 500px;}
+.passText{float:left;font-size:16px;color:#626262;font-weight:500;margin:5px 0 0 460px;}
+.passTextT{margin:5px 0 0 440px;}
+#update{margin:0}
+#addScale{margin:0}
+#f2{padding-left:10px;}
+
+/* updateEmployeeuser */
+.userInfo pre{float:left;margin:5px 0 0 -80px;font-size:16px;color:#626262;font-weight:500;}
+.userInfoPre pre{margin:5px 0 0 -100px;}
+.userInfoPrePre pre{margin:5px 0 0 -120px;}
+#userInfo .userInfoBut input{width:99px;margin-right:2px;}

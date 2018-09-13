@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployeeUserMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployeeUser">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="age" property="age" jdbcType="VARCHAR" />
+		<result column="idcard" property="idcard" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="hand" property="hand" jdbcType="VARCHAR" />
+		<result column="scan" property="scan" jdbcType="VARCHAR" />
+		<result column="portrait" property="portrait" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
+		<result column="online_status" property="onlineStatus" jdbcType="VARCHAR" />
+		<result column="salesmanId" property="salesmanId" jdbcType="INTEGER" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+		<result column="withdrawal" property="withdrawal" jdbcType="VARCHAR" />
+		<result column="salesemployeeuser" property="salesemployeeuser" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.EmployeeUserToSalesman"
+		id="selectBySalesman" extends="BaseResultMap">
+		<result property="salesmanName" column="salesmanName" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.EmployeeUserToLocation"
+		id="selectEmployeeLocation" extends="BaseResultMap">
+		<result property="balance" column="balance" jdbcType="DOUBLE" />
+		<result property="residue" column="residue" jdbcType="DOUBLE" />
+		<result property="cash" column="cash" jdbcType="VARCHAR" />
+		<result property="totalMoney" column="totalMoney" jdbcType="VARCHAR" />
+		<result property="desc" column="desc" jdbcType="VARCHAR" />
+		<result property="time" column="time" jdbcType="VARCHAR" />
+		<result property="starttime" column="starttime" jdbcType="VARCHAR" />
+		<result property="endtime" column="endtime" jdbcType="VARCHAR" />
+		<result property="status" column="status" jdbcType="VARCHAR" />
+		<result property="longitude" column="longitude" jdbcType="VARCHAR" />
+		<result property="latitude" column="latitude" jdbcType="VARCHAR" />
+		<result property="starlevel" column="starlevel" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.EmployeeUserByWork"
+		id="selectEmployeeByWork" extends="BaseResultMap">
+		<result property="eeid" column="eeid" jdbcType="INTEGER" />
+		<result property="startime" column="startime" jdbcType="VARCHAR" />
+		<result property="endtime" column="endtime" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.OnlineToEmployeeUser"
+		id="selectOnline" extends="BaseResultMap">
+		<result property="starttime" column="starttime" jdbcType="VARCHAR" />
+		<result property="endtime" column="endtime" jdbcType="VARCHAR" />
+		<result property="status" column="status" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.OnlineToEmployeeUser1"
+		id="selectOnline1" extends="BaseResultMap">
+		<result property="startime" column="startime" jdbcType="VARCHAR" />
+		<result property="endtime" column="endtime" jdbcType="VARCHAR" />
+		<result property="status" column="status" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, username, password, name, sex, age, idcard, address,
+		hand, scan,
+		portrait,status,regid,time
+	</sql> 
+	  
+	  <!-- 更新 -->
+	 <update id="updateStatus" parameterType="java.lang.String" >
+    update employee_user
+    <set >
+     <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+</set>
+    where username = #{username,jdbcType=VARCHAR}
+</update>
+	  
+	 <!-- 查询regid -->
+	 <select id="selectEeuseregid" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+	  select regid from employee_user
+  where employee_user.id=#{id,jdbcType=INTEGER}
+	 </select>
+	  <!-- 查询姓名 -->
+	  <select id="selectByusernameOrname" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+	  
+	    select id,username,name from employee_user
+  where employee_user.id=#{id,jdbcType=INTEGER}
+	  
+	  </select>
+	<select id="salesemployeeuser" resultMap="BaseResultMap">
+	SELECT COUNT(b.id)AS salesemployeeuser FROM 
+	(SELECT
+		employee_user.id,employee_user.username,employee_user.`name`,employee_user.age,employee_user.idcard,employee_user.address,employee_user.`status`,employee_user.time,employee_user.salesmanId
+		FROM
+		employee_user
+		LEFT JOIN salesman ON employee_user.salesmanId = salesman.id
+		where 1=1 and salesman.id =#{id,jdbcType=INTEGER}
+		<if test="name != null">
+			and employee_user.name like  #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="username != null">
+			and employee_user.username like 
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		)AS b
+	</select>
+	
+	<select id="queryCountMoney" resultMap="BaseResultMap">
+ SELECT count(b.id) as withdrawal FROM
+(SELECT
+		employee_user.*,
+		truncate(wallet.balance,2) as balance ,
+		truncate(wallet.balance-limit_money.money,2) as residue,
+		truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney ,
+		withdraw_deposit.time as witime
+		FROM
+		employee_user,limit_money,wallet,withdraw_deposit
+		where employee_user.id = wallet.eeid 
+		and	employee_user.id = withdraw_deposit.eeid
+		and	withdraw_deposit.desc='收益'
+		<if test="id !=null">
+		and	employee_user.id=#{id,jdbcType=VARCHAR}
+		</if>
+		<if test="starttime != null and endtime != null">
+		  <![CDATA[ 						
+  and withdraw_deposit.time>=#{starttime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		)AS b
+ </select>
+	
+	<!-- 查询工人数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		SELECT COUNT(id) as count from employee_user
+		where 1=1
+		<if test="name != null">
+			and employee_user.name like  #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="eeid != null">
+			and employee_user.id = #{eeid,jdbcType=VARCHAR}
+		</if>
+		<if test="phone != null">
+			and employee_user.username like '%'
+			#{phone,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu != null">
+			and employee_user.status=#{btu,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 修改转移 -->
+	<update id="updateSalesmanId" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		UPDATE employee_user
+		SET employee_user.salesmanId =#{salesmanId,jdbcType=INTEGER}
+		WHERE
+		employee_user.salesmanId =#{id,jdbcType=INTEGER}
+	</update>
+	<!-- 修改转移 -->
+	<update id="updateid" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		UPDATE employee_user
+		SET employee_user.salesmanId =#{salesmanId,jdbcType=INTEGER}
+		WHERE
+		employee_user.id =#{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- 查询业务员管理的工人 -->
+	<select id="selectBySalesman" resultMap="BaseResultMap">
+		SELECT
+		employee_user.id,employee_user.username,employee_user.`name`,employee_user.age,employee_user.idcard,employee_user.address,employee_user.`status`,employee_user.time,employee_user.salesmanId
+		FROM
+		employee_user
+		LEFT JOIN salesman ON employee_user.salesmanId = salesman.id
+		where 1=1 and salesman.id =#{id,jdbcType=INTEGER}
+		<if test="name != null">
+			and employee_user.name like '%' #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="username != null">
+			and employee_user.username like '%'
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		ORDER BY time desc
+	</select>
+	<!-- 查询业务员管理的工人分页 -->
+	<select id="selectBySalesmanPage" resultMap="BaseResultMap">
+		SELECT
+		employee_user.id,employee_user.username,employee_user.`name`,employee_user.age,employee_user.idcard,employee_user.address,employee_user.`status`,employee_user.time,employee_user.salesmanId
+		FROM
+		employee_user
+		LEFT JOIN salesman ON employee_user.salesmanId = salesman.id
+		where 1=1 and salesman.id =#{id,jdbcType=INTEGER}
+		<if test="name != null">
+			and employee_user.name like '%' #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="username != null">
+			and employee_user.username like '%'
+			#{username,jdbcType=VARCHAR} '%'
+		</if>
+		ORDER BY time desc
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 查看个人收益 总数 -->
+	<select id="queryshouyi" resultMap="selectEmployeeLocation">
+		select wallet.id
+		,employee_user.name
+		,employee_user.username,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as
+		totalMoney,
+		withdraw_deposit.time
+		from
+		wallet,employee_user,withdraw_deposit
+		where 1=1
+		<if test="starttime != null and endtime != null">
+		  <![CDATA[ 						
+  and withdraw_deposit.time>=#{starttime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and
+		wallet.eeid=employee_user.id
+		and
+		withdraw_deposit.eeid=employee_user.id
+		and
+		withdraw_deposit.desc='收益'
+		and
+		withdraw_deposit.eeid=#{id,jdbcType=INTEGER}
+	</select>
+	<!-- 查看个人收益 总数分页 -->
+
+	<select id="queryshouyiInfo" resultMap="selectEmployeeLocation">
+		select wallet.id
+		,employee_user.name
+		,employee_user.username,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as
+		totalMoney,
+		withdraw_deposit.time
+		from
+		wallet,employee_user,withdraw_deposit
+		where 1=1
+
+		<if test="starttime != null and endtime != null">
+		  <![CDATA[ 
+  and withdraw_deposit.time>=#{starttime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+
+		and
+
+		wallet.eeid=employee_user.id
+		and
+		withdraw_deposit.eeid=employee_user.id
+		and
+		withdraw_deposit.desc='收益'
+		and
+		withdraw_deposit.eeid=#{id,jdbcType=INTEGER}
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- +++++++++++++++++++++++++++++++++++++++查询 -->
+	<select id="selectByName1" resultMap="selectBySalesman">
+		SELECT employee_user.id,
+		employee_user.username,
+		employee_user.`password`,
+		employee_user.`name`,
+		employee_user.sex,
+		employee_user.age,
+		employee_user.idcard,
+		employee_user.address,
+		employee_user.`status`,
+		employee_user.time
+		from employee_user
+		<!--  employee_user.salesmanId,
+		salesman.salesmanName
+		FROM employee_user
+		LEFT JOIN salesman on employee_user.salesmanId=salesman.id-->
+		where 1=1
+		<if test="name != null">
+			and employee_user.name like '%' #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="eeid != null">
+			and employee_user.id = #{eeid,jdbcType=VARCHAR}
+		</if>
+		<if test="phone != null">
+			and employee_user.username like '%'
+			#{phone,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu != null">
+			and employee_user.status=#{btu,jdbcType=VARCHAR}
+		</if>
+		<!--  <if test="salesmanName !=null">
+			and salesman.salesmanName like '%' #{salesmanName,jdbcType=VARCHAR} '%'
+		</if>-->
+		ORDER BY time desc
+	</select>
+
+	<select id="selectByNamePage" resultMap="selectBySalesman">
+		SELECT employee_user.id,
+		employee_user.username,
+		employee_user.`password`,
+		employee_user.`name`,
+		employee_user.sex,
+		employee_user.age,
+		employee_user.idcard,
+		employee_user.address,
+		employee_user.`status`,
+		employee_user.time,
+		<!--  employee_user.salesmanId,
+		salesman.salesmanName,-->
+		IFNULL(online_status,'完成') AS online_status
+		FROM employee_user
+		LEFT JOIN (SELECT
+		eeid,ifnull(SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status`
+		ORDER BY online_information.id), ',', -1),'完成')
+		AS online_status FROM online_information GROUP BY eeid ) AS online ON
+		employee_user.id =online.eeid
+		<!-- LEFT JOIN salesman ON employee_user.salesmanId = salesman.id -->
+		where 1=1
+		<if test="name != null">
+			and employee_user.name like '%' #{name,jdbcType=VARCHAR}
+			'%'
+		</if>
+		<if test="eeid != null">
+			and employee_user.id = #{eeid,jdbcType=VARCHAR}
+		</if>
+		<if test="phone != null">
+			and employee_user.username like '%'
+			#{phone,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu != null">
+			and employee_user.status=#{btu,jdbcType=VARCHAR}
+		</if>
+		<!--  <if test="salesmanName !=null">
+			and salesman.salesmanName like '%' #{salesmanName,jdbcType=VARCHAR} '%'
+		</if>-->
+		ORDER BY time desc
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 根据时间查看个人的在线情况 <select id="querytimetime" resultMap="selectOnline"> 
+		SELECT employee_user.id, employee_user.name, employee_user.username, online_information.startime, 
+		online_information.endtime , online_information.`status` FROM employee_user, 
+		online_information WHERE employee_user.id = online_information.eeid <![CDATA[ 
+		AND online_information.startime >=#{starttime,jdbcType=VARCHAR} AND online_information.endtime 
+		<=#{endtime,jdbcType=VARCHAR} ]]> </select> -->
+	<select id="queryDate66" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime,
+		online_information.endtime ,
+		online_information.`status`
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+and online_information.`status`=#{status,jdbcType=VARCHAR}
+and online_information.eeid=#{id,jdbcType=VARCHAR} 
+  ]]>
+	</select>
+	<select id="queryDatePaGe66" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime,
+		online_information.endtime ,
+		online_information.`status`
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+and online_information.`status`=#{status,jdbcType=VARCHAR}
+and online_information.eeid=#{id,jdbcType=VARCHAR} 
+limit #{page},#{pageSize}
+  ]]>
+	</select>
+
+
+
+
+	<!-- 根据状态查询总数 -->
+	<select id="queryUserPageOnlineYiWanCheng" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime ,
+		online_information.endtime ,
+		online_information.`status`
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+		and
+		online_information.eeid=#{id,jdbcType=VARCHAR}
+		and
+		online_information.status=#{status,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据状态查询总数 分页 -->
+	<select id="queryUserPageOnlineYiWanChengPage" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime ,
+		online_information.endtime ,
+		online_information.`status` ,
+		online_information.eeid
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id =
+		online_information.eeid
+		and
+		online_information.eeid=#{id,jdbcType=VARCHAR}
+		and
+		online_information.status=#{status,jdbcType=VARCHAR}
+		limit
+		#{page},#{pageSize}
+	</select>
+	<!-- 跳在线时间查询分页 -->
+	<select id="queryDate" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime,
+		online_information.endtime ,
+		online_information.`status`
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+	<!-- 在线时间查询分页总数 -->
+	<select id="queryDate1" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime,
+		online_information.endtime ,
+		online_information.`status`
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		and online_information.eeid=#{id,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 在线时间查询分页 -->
+	<select id="queryDatePaGe1" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime,
+		online_information.endtime ,
+		online_information.`status`,
+		online_information.eeid
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id = online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+limit #{page},#{pageSize}
+  ]]>
+	</select>
+
+
+	<!-- 跳查看工人收入 -->
+	<select id="queryData" resultMap="selectEmployeeLocation">
+		select wallet.id
+		,truncate(wallet.balance,2) as
+		balance,truncate(wallet.balance-withdraw_deposit.cash,2) as
+		residue,employee_user.name
+		,employee_user.username,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as
+		totalMoney,
+		withdraw_deposit.time
+		from
+		wallet,employee_user,withdraw_deposit
+		where
+		wallet.eeid=employee_user.id
+		and
+		withdraw_deposit.eeid=employee_user.id
+		and
+		withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+		withdraw_deposit.eeid=#{id,jdbcType=INTEGER}
+  <![CDATA[ 
+  and withdraw_deposit.time>=#{startime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+	<!-- 查看工人收入 -->
+
+
+	<select id="queryData1" resultMap="selectEmployeeLocation">
+		select wallet.id
+		,truncate(wallet.balance,2) as balance
+		,truncate(wallet.balance-withdraw_deposit.cash,2) as
+		residue,employee_user.name
+		,employee_user.username,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time
+		from wallet,employee_user,withdraw_deposit
+		where
+		wallet.eeid=employee_user.id
+		and
+		withdraw_deposit.eeid=employee_user.id 
+  <![CDATA[ 
+  and withdraw_deposit.time>=#{startime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+
+	<!-- 查看工人收入分页 -->
+	<select id="queryDataPage" resultMap="selectEmployeeLocation">
+		select wallet.id, wallet.eeid
+		,truncate(wallet.balance,2)as
+		balance,truncate(wallet.balance-withdraw_deposit.cash,2) as
+		residue,employee_user.name
+		,employee_user.username,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as
+		totalMoney,
+		withdraw_deposit.time
+		from
+		wallet,employee_user,withdraw_deposit
+		where
+		wallet.eeid=employee_user.id
+		and
+		withdraw_deposit.eeid=employee_user.id
+		and
+		withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+
+		and
+		withdraw_deposit.eeid=#{id,jdbcType=INTEGER}
+  <![CDATA[ 
+  and withdraw_deposit.time>=#{startime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  limit #{page},#{pageSize}
+  ]]>
+	</select>
+
+	<!-- 在线时间查询分页 -->
+	<select id="queryDatePaGe" resultMap="selectOnline1">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		online_information.startime ,
+		online_information.endtime ,
+		online_information.`status` ,
+		online_information.eeid
+		FROM
+		employee_user,
+		online_information
+		WHERE
+		employee_user.id =
+		online_information.eeid
+ <![CDATA[ 
+AND online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+  and online_information.eeid=#{id,jdbcType=VARCHAR}
+limit #{page},#{pageSize}
+  ]]>
+	</select>
+
+
+	<!-- 鏍规嵁鏃堕棿鏌ヨ鍦ㄧ嚎鏃堕棿 -->
+	<!--跳 工作次数总数 -->
+	<select id="queryDatoo" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		order_form.starttime,
+		order_form.endtime
+		FROM
+		employee_user,order_form
+		WHERE
+		employee_user.id = order_form.eeid
+		and
+		order_form.eeid=#{id,jdbcType=INTEGER}
+  <![CDATA[ 
+AND order_form.starttime >=#{startime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+
+  ]]>
+	</select>
+	<!--跳 工作次数分页 -->
+	<select id="queryDatooPage" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		order_form.starttime,
+		order_form.endtime,
+		order_form.eeid
+		FROM
+		employee_user,order_form
+		WHERE
+		employee_user.id = order_form.eeid
+		and
+		order_form.eeid=#{id,jdbcType=INTEGER}
+  <![CDATA[ 
+AND order_form.starttime >=#{startime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+limit #{page},#{pageSize}
+  ]]>
+	</select>
+
+	<!--跳 工作次数 -->
+	<select id="queryDato" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.id,
+		employee_user.name,
+		employee_user.username,
+		order_form.starttime,
+		order_form.endtime
+		FROM
+		employee_user,order_form
+		WHERE
+		employee_user.id = order_form.eeid
+  <![CDATA[ 
+AND order_form.starttime >=#{startime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+ and order_form.eeid=#{id,jdbcType=INTEGER}
+  ]]>
+	</select>
+
+	<!-- 鏌ヨ璇︾粏淇℃伅鎬绘暟 -->
+	<select id="selectUserLocation" resultMap="selectEmployeeLocation"
+		parameterType="java.lang.Integer">
+		SELECT DISTINCT
+		employee_user.*,
+		employee_location.longitude,
+		employee_location.latitude,
+		truncate(wallet.balance,2) as balance,
+		truncate(wallet.balance-withdraw_deposit.cash,2) as residue,
+		truncate(sum(withdraw_deposit.cash),2) cash
+		FROM
+		employee_user
+		LEFT JOIN
+		employee_location ON employee_user.id = employee_location.eeid
+		LEFT
+		JOIN wallet ON employee_user.id = wallet.eeid
+		LEFT JOIN
+		withdraw_deposit ON employee_user.id = withdraw_deposit.eeid
+		where
+		employee_user.id =#{id,jdbcType=INTEGER}
+	</select>
+	<!-- 鏌ヨ璇︾粏淇℃伅鍒嗛〉 -->
+	<select id="selectAllByPage" resultMap="selectEmployeeLocation"
+		parameterType="java.lang.Integer">
+		SELECT DISTINCT
+		employee_user.*,
+		employee_location.longitude,
+		employee_location.latitude,
+		truncate(wallet.balance,2) as balance,
+		truncate(wallet.balance-withdraw_deposit.cash,2) as residue,
+		truncate(sum(withdraw_deposit.cash),2) cash
+		FROM
+		employee_user
+		LEFT JOIN
+		employee_location ON employee_user.id = employee_location.eeid
+		LEFT
+		JOIN wallet ON employee_user.id = wallet.eeid
+		LEFT JOIN
+		withdraw_deposit ON employee_user.id = withdraw_deposit.eeid
+		where
+		employee_user.id =#{id,jdbcType=INTEGER}
+		limit #{page},
+		#{pageSize}
+	</select>
+
+	<!-- 鏍规嵁ID鏌ヨ -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM employee_user
+		where employee_user.id =#{id,jdbcType=INTEGER}
+	</select>
+	<!-- 鏍规嵁ID鏌ヨ鍒嗛〉 -->
+	<select id="selectByPrimaryPage" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT
+		*
+		FROM employee_user
+		where employee_user.id
+		=#{id,jdbcType=INTEGER}
+
+		limit #{page},
+		#{pageSize}
+	</select>
+
+	<!-- 鍏ㄦ煡 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM employee_user
+	</select>
+	<!-- 鍒嗛〉 -->
+	<select id="selectByPage" resultMap="BaseResultMap">
+		select * from employee_user
+		ORDER BY time desc
+		limit #{page},
+		#{pageSize}
+	</select>
+
+	<!-- 鍏ㄦ煡鏀跺叆 -->
+	<select id="selectAllMoney" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.*,truncate(wallet.balance,2) as balance ,
+		truncate(wallet.balance-limit_money.money,2) as residue,
+		truncate(withdraw_deposit.cash,2) as cash,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney,
+		withdraw_deposit.desc,
+		withdraw_deposit.time
+		FROM
+		employee_user,limit_money,wallet, withdraw_deposit
+		where
+		employee_user.id = wallet.eeid and
+		employee_user.id =
+		withdraw_deposit.eeid and
+		withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+		employee_user.id
+		=#{id,jdbcType=INTEGER} ORDER BY withdraw_deposit.time desc limit 1
+	</select>
+
+
+	<!-- 鍏ㄦ煡鏀跺叆 -->
+	<select id="selectAllMoney1" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.*,
+		truncate(wallet.balance,2) as balance ,
+		truncate(wallet.balance-limit_money.money,2) as residue,
+		truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney ,
+		withdraw_deposit.time
+		FROM
+		employee_user,limit_money,wallet,
+		withdraw_deposit
+		where employee_user.id = wallet.eeid and
+		employee_user.id = withdraw_deposit.eeid
+		and
+		withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+		employee_user.id=#{id,jdbcType=INTEGER}
+	</select>
+
+
+
+
+	<!-- 鏌ヨ鏀跺叆鍒嗛〉 -->
+	<select id="selectBYPageMoney" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.*,
+		truncate(wallet.balance,2) as balance,
+		truncate(wallet.balance-limit_money.money,2) as residue,
+		truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.desc,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney,
+		withdraw_deposit.time
+		FROM
+		employee_user,limit_money,wallet,
+		withdraw_deposit
+		where employee_user.id = wallet.eeid and
+		employee_user.id = withdraw_deposit.eeid
+		and
+		withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+		employee_user.id=#{id,jdbcType=INTEGER}
+		limit #{page},
+		#{pageSize}
+	</select>
+
+	<!-- 鍏ㄦ煡鍦ㄧ嚎鏃堕棿 -->
+	<select id="selectAllOnline" resultMap="BaseResultMap">
+		SELECT
+		employee_user.id,
+		employee_user.username,
+		employee_user.`name`,online_information.startime starttime,
+		online_information.endtime,
+		online_information.`status`
+		FROM
+		employee_user
+		LEFT JOIN online_information ON employee_user.id =
+		online_information.eeid
+		where employee_user.id =#{id,jdbcType=INTEGER}
+	</select>
+	<!-- 鏌ヨ鍦ㄧ嚎鏃堕棿鍒嗛〉 -->
+	<select id="selectByPaGeOnline" resultMap="selectEmployeeLocation">
+		SELECT
+		employee_user.id,
+		employee_user.username,
+		employee_user.`name`,
+		online_information.startime starttime ,
+		online_information.endtime,
+		online_information.`status` ,
+		online_information.eeid
+		FROM
+		employee_user
+		LEFT JOIN online_information ON employee_user.id =
+		online_information.eeid
+		where employee_user.id =#{id,jdbcType=INTEGER}
+		limit #{page},
+		#{pageSize}
+	</select>
+
+	<!-- 鏌ヨ骞叉椿娆℃暟鍒嗛〉 -->
+	<select id="selectByPageWork" resultMap="selectEmployeeByWork">
+		SELECT
+		employee_user.id ,
+		employee_user.username,
+		employee_user.`name`,
+		order_form.starttime,
+		order_form.endtime
+		FROM
+		employee_user
+		LEFT JOIN order_form ON
+		employee_user.id = order_form.eeid
+		where employee_user.id
+		=#{id,jdbcType=INTEGER}
+		limit #{page},
+		#{pageSize}
+	</select>
+	<!-- 鍏ㄦ煡骞叉椿娆℃暟 -->
+	<select id="selectByWork" resultMap="selectEmployeeByWork">
+		SELECT
+		employee_user.id ,
+		employee_user.username,
+		employee_user.`name`,
+		order_form.starttime,
+		order_form.endtime
+		FROM
+		employee_user
+		LEFT JOIN order_form ON
+		employee_user.id = order_form.eeid
+		where employee_user.id
+		=#{id,jdbcType=INTEGER}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		employee_user
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		insert into employee_user (id,
+		username, password,
+		name, sex, age, idcard,
+		address, hand, scan,
+		portrait,status)
+		values (#{id,jdbcType=INTEGER},
+		#{username,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR},
+		#{age,jdbcType=VARCHAR},
+		#{idcard,jdbcType=VARCHAR},
+		#{address,jdbcType=VARCHAR}, #{hand,jdbcType=VARCHAR},
+		#{scan,jdbcType=VARCHAR},
+		#{portrait,jdbcType=VARCHAR},
+		#{status,jdbcType=VARCHAR},#{regid,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		insert into employee_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="username != null">
+				username,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="sex != null">
+				sex,
+			</if>
+			<if test="age != null">
+				age,
+			</if>
+			<if test="idcard != null">
+				idcard,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="hand != null">
+				hand,
+			</if>
+			<if test="scan != null">
+				scan,
+			</if>
+			<if test="portrait != null">
+				portrait,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="regid != null">
+				regid,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="username != null">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="age != null">
+				#{age,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard != null">
+				#{idcard,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="hand != null">
+				#{hand,jdbcType=VARCHAR},
+			</if>
+			<if test="scan != null">
+				#{scan,jdbcType=VARCHAR},
+			</if>
+			<if test="portrait != null">
+				#{portrait,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=VARCHAR},
+			</if>
+			<if test="regid != null">
+				#{regid,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		update employee_user
+		<set>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				sex = #{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="age != null">
+				age = #{age,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard != null">
+				idcard = #{idcard,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="hand != null">
+				hand = #{hand,jdbcType=VARCHAR},
+			</if>
+			<if test="scan != null">
+				scan = #{scan,jdbcType=VARCHAR},
+			</if>
+			<if test="portrait != null">
+				portrait = #{portrait,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="regid != null">
+				regid = #{regid,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		update employee_user
+		<set>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+
+			<if test="sex != null">
+				sex = #{sex,jdbcType=VARCHAR},
+			</if>
+
+			<if test="age != null">
+				age = #{age,jdbcType=VARCHAR},
+			</if>
+
+			<if test="address !=null">
+				address= #{address,jdbcType=VARCHAR},
+			</if>
+
+			<if test="status !=null">
+				status= #{status,jdbcType=VARCHAR}
+			</if>
+
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey1" parameterType="com.bangshuo.kuaigong.po.EmployeeUser">
+		update employee_user
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

@@ -1,0 +1,1614 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.OrderFormMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.OrderForm" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="eeid" property="eeid" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="starttime" property="starttime" jdbcType="VARCHAR" />
+    <result column="endtime" property="endtime" jdbcType="VARCHAR" />
+    <result column="payment" property="payment" jdbcType="VARCHAR" />
+    <result column="actualcost" property="actualcost" jdbcType="VARCHAR" />
+     <result column="status" property="status" jdbcType="VARCHAR" />
+     <result column="order_start_time" property="order_start_time" jdbcType="VARCHAR" />
+     <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+     <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+     <result column="estimatedTimeOfArrival" property="estimatedTimeOfArrival" jdbcType="VARCHAR" />
+     <result column="actualcostSS" property="actualcostSS" jdbcType="VARCHAR" />
+     <result column="count" property="count" jdbcType="VARCHAR" />
+     <result column="orderAll" property="orderAll" jdbcType="VARCHAR" />
+     <result column="works" property="works" jdbcType="VARCHAR" />
+     <result column="single" property="single" jdbcType="VARCHAR" />
+     <result column="salesorder" property="salesorder" jdbcType="VARCHAR" />
+     <result column="ordercost" property="ordercost" jdbcType="VARCHAR" />
+      <result column="paymentWeiXinCount" property="paymentWeiXinCount" jdbcType="VARCHAR" />
+ 	  <result column="paymentWeiXinMoney" property="paymentWeiXinMoney" jdbcType="VARCHAR" />
+     <result column="paymentZhiFuBaoCount" property="paymentZhiFuBaoCount" jdbcType="VARCHAR" />
+ 	  <result column="paymentZhiFuBaoMoney" property="paymentZhiFuBaoMoney" jdbcType="VARCHAR" />
+     <result column="paymentYueCount" property="paymentYueCount" jdbcType="VARCHAR" />
+ 	  <result column="paymentYueMoney" property="paymentYueMoney" jdbcType="VARCHAR" />
+ 	  <result column="paymentCancelCount" property="paymentCancelCount" jdbcType="VARCHAR" />
+ 	     <result column="weiXinMoney" property="weiXinMoney" jdbcType="VARCHAR" />
+ 	     <result column="zhiFuBaMoney" property="zhiFuBaMoney" jdbcType="VARCHAR" />
+ 	     <result column="yueMoney" property="yueMoney" jdbcType="VARCHAR" />
+ 	     <result column="cancelOrderCount" property="cancelOrderCount" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap type="com.bangshuo.kuaigong.po.orderFormToEeUserAndErUser" id="ToEeUserAndErUserMap" extends="BaseResultMap">
+  <result column="eename" property="eename" jdbcType="VARCHAR"/>
+  <result column="username" property="username" jdbcType="VARCHAR"/>
+  <result  column="GRusername" property="GRusername" jdbcType="VARCHAR"/>
+  <result column="hand" property="hand" jdbcType="VARCHAR"/>
+  <result column="portrait" property="portrait" jdbcType="VARCHAR"/>
+  <result column="DDtime" property="DDtime" jdbcType="VARCHAR"/>
+  <result column="CDtime" property="CDtime" jdbcType="VARCHAR"/>
+  <result column="watime" property="watime" jdbcType="VARCHAR"/>
+  <result column="ChiDaoTime" property="ChiDaoTime" jdbcType="VARCHAR"/>
+  <result column="actualcost" property="actualcost" jdbcType="VARCHAR"/>
+  <result column="miao" property="miao" jdbcType="VARCHAR" />
+    <result column="workingHours" property="workingHours" jdbcType="VARCHAR" />
+        <result column="time" property="time" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap type="com.bangshuo.kuaigong.po.OrderFormToEmeeUser" id="OrderFormToEmeeUserMap" extends="BaseResultMap">
+  <result column="name" property="name" jdbcType="VARCHAR"/>
+  <result column="username" property="username" jdbcType="VARCHAR"/>
+  </resultMap>
+  
+  <!-- 使用collection,一对多 -->
+  <resultMap id="BaseMap" type="com.bangshuo.kuaigong.po.OrderForm">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="eeid" property="eeid" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="starttime" property="starttime" jdbcType="VARCHAR" />
+    <result column="endtime" property="endtime" jdbcType="VARCHAR" />
+    <result column="payment" property="payment" jdbcType="VARCHAR" />
+    <result column="portrait" property="portrait" jdbcType="VARCHAR" />
+     <result column="allcost" property="allcost" jdbcType="VARCHAR" />
+    <result column="actualcost" property="actualcost" jdbcType="VARCHAR" />
+    <result column="portrait" property="portrait" jdbcType="VARCHAR" />
+     <result column="status" property="status" jdbcType="VARCHAR" />
+     <result column="order_start_time" property="order_start_time" jdbcType="VARCHAR" />
+     <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+     <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+     <result column="estimatedTimeOfArrival" property="estimatedTimeOfArrival" jdbcType="VARCHAR" />
+     <result column="actualcostSS" property="actualcostSS" jdbcType="VARCHAR" />
+     <result column="count" property="count" jdbcType="VARCHAR" />
+     <result column="orderAll" property="orderAll" jdbcType="VARCHAR" />
+     <result column="works" property="works" jdbcType="VARCHAR" />
+     <result column="single" property="single" jdbcType="VARCHAR" />
+     <result column="salesorder" property="salesorder" jdbcType="VARCHAR" />
+     <result column="ordercost" property="ordercost" jdbcType="VARCHAR" />
+     <result column="DDtime" property="DDtime" jdbcType="VARCHAR"/>
+     <result column="CDtime" property="CDtime" jdbcType="VARCHAR"/>
+     <result column="watime" property="watime" jdbcType="VARCHAR"/>
+     <result column="ChiDaoTime" property="ChiDaoTime" jdbcType="VARCHAR"/>
+     <result column="miao" property="miao" jdbcType="VARCHAR" />
+     
+      <collection property="employeeUser" ofType="com.bangshuo.kuaigong.po.EmployeeUser">
+          <id property="id" column="eeid"/>
+          <result property="name" column="name"/>
+          <result property="username" column="username"/>
+     </collection>
+         
+     <collection property="employerUser" ofType="com.bangshuo.kuaigong.po.EmployerUser">
+          <id property="id" column="erid"/>
+          <result property="name" column="Ername"/>
+          <result property="username" column="Erusername"/>
+     </collection>
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, eeid, erid, starttime, endtime, payment, allcost, actualcost,status,order_start_time,latitude,longitude,estimatedTimeOfArrival
+  </sql>
+
+ <!-- 按照在线时长排序分页 -->
+  <select id="sortTimeInfo" resultMap="ToEeUserAndErUserMap">
+  
+  
+SELECT 
+	order_form.*, TIMESTAMPDIFF(second,order_form.starttime,order_form.endtime) as workingHours ,employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+where 1=1
+<if test="eename != null">
+and  employee_user.name like	 '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" payment != null">
+and order_form.payment= #{payment,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+<![CDATA[ 
+and erid <>'0'
+]]>
+and to_days(order_form.starttime) = to_days(now())
+order by workingHours desc
+  limit #{page},#{pageSize}
+  
+  
+  </select>
+<!-- 按照在线时长排序总数-->  
+  <select id="sortTime" resultMap="ToEeUserAndErUserMap">
+
+SELECT 
+	order_form.*, TIMESTAMPDIFF(second,order_form.starttime,order_form.endtime) as workingHours ,employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+where 1=1
+<if test="eename != null">
+and  employee_user.name like	 '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" payment != null">
+and order_form.payment= #{payment,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>	
+</if>
+<![CDATA[ 
+and erid <>'0'
+]]>
+and to_days(order_form.starttime) = to_days(now())
+order by workingHours desc
+
+  </select>
+
+  
+  
+  
+  <!-- 查询干活记录次数 -->
+  <select id="selectWorkAll" resultMap="ToEeUserAndErUserMap" >
+  SELECT count(b.id) as orderAll from
+(SELECT 
+	order_form.*,  employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait
+FROM
+	order_form ,employee_user,employer_user
+where 1=1
+ and order_form.eeid=employee_user.id
+ and order_form.erid=employer_user.id
+ <if test="id !=null">
+ and employee_user.id=#{id,jdbcType=VARCHAR}
+ </if>
+ <if test=" name != null ">
+and employer_user.name  LIKE  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" starttime != null and endtime != null ">
+and 
+<![CDATA[ 
+	(order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR})
+]]>
+</if>
+<if test=" OrderID != null">
+and order_form.id=#{OrderID,jdbcType=VARCHAR}
+</if>
+) as b
+ </select>
+ 
+  	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" >
+		SELECT	
+COUNT(order_form.id) as count ,
+		employee_user.`name`eename,
+		employer_user.`name`
+from order_form
+LEFT JOIN employee_user on order_form.eeid = employee_user.id
+LEFT JOIN employer_user on order_form.erid = employer_user.id
+WHERE 1=1
+		<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" payment != null">
+and order_form.payment = #{payment,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+<![CDATA[ 
+and erid <>'0'
+]]>
+	</select>
+  <!-- 查询业务员下的工人下的订单数 -->
+  <select id="salesorder" resultMap="BaseResultMap">
+  SELECT COUNT(b.id)AS salesorder from	
+ (SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1 and order_form.eeid =#{id,jdbcType=INTEGER}
+	<![CDATA[ 	and order_form.erid<>0]]>
+<if test=" name !=null">
+and employer_user.`name` like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" username !=null">
+and employer_user.`username` like '%' #{username,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null">
+and order_form.status = #{status,jdbcType=VARCHAR} 
+</if>
+	)as b
+  </select>
+  
+  <!-- 订单查询 -->
+  <select id="selectSalesmanOrder" resultMap="ToEeUserAndErUserMap">
+  SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1 and order_form.eeid=#{id,jdbcType=INTEGER}
+<![CDATA[ 	and order_form.erid<>0]]>
+<if test=" name !=null">
+and employer_user.`name` like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" username !=null">
+and employer_user.`username` like '%' #{username,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null">
+and order_form.status = #{status,jdbcType=VARCHAR} 
+</if>
+<!-- 
+<if test=" starttime != null ">
+<![CDATA[ 
+	and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null ">
+<![CDATA[ 
+and order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+ -->
+  group by order_start_time desc
+	</select>
+  <!-- 订单查询分页 -->
+  <select id="selectSalesmanOrderPage" resultMap="ToEeUserAndErUserMap">
+  SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1 and  order_form.eeid=#{id,jdbcType=INTEGER}
+<![CDATA[ 	and order_form.erid<>0]]>
+<if test=" name !=null">
+and employer_user.`name` like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" username !=null">
+and employer_user.`username` like '%' #{username,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null">
+and order_form.status = #{status,jdbcType=VARCHAR} 
+</if>
+<!-- 
+<if test=" starttime != null ">
+<![CDATA[ 
+	and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null ">
+<![CDATA[ 
+and order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+ -->
+ group by order_start_time desc
+ limit #{page},#{pageSize}
+	</select>
+  <!-- 全部消费
+  <select id="queryOrderCost" resultMap="BaseResultMap">
+  SELECT SUM(TRUNCATE(order_form.allcost,2))AS ordercost FROM order_form
+  </select> -->
+  <!-- 消费统计 -->
+  <select id="queryAll" resultMap="BaseResultMap">
+SELECT order_form.id 
+
+,order_form.eeid,order_form.erid,order_form.starttime,order_form.endtime,order_form.payment,
+			order_form.allcost,sum(order_form.actualcost)AS actualcostSS,order_form.`status`,order_form.order_start_time,
+			order_form.latitude,order_form.longitude,employee_user.`name` AS eename,employee_user.username AS GRusername,
+			employer_user.`name`,employer_user.username
+FROM order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+
+LEFT JOIN employer_user on order_form.erid=employer_user.id 
+
+where 1=1
+<if test="id !=null">
+and order_form.id 
+
+ =#{id,jdbcType=VARCHAR}
+</if>
+<if test="name !=null">
+and	employer_user.name 
+
+ like  #{name,jdbcType=VARCHAR} '%'
+ </if>
+ <if test="eename !=null">
+ and employee_user.name 
+
+ like #{eename,jdbcType=VARCHAR} '%'
+ </if>
+  <if test="starttime !=null ">
+<![CDATA[
+and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+and order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+</if>
+<if test=" btu != null">
+and order_form.status =#{btu,jdbcType=VARCHAR}
+</if>
+<if test=" payment != null">
+and order_form.payment =#{payment,jdbcType=VARCHAR}
+</if>
+  </select>
+  
+  <!-- 订单详细信息 -->
+  <select id="selectDetailed" resultMap="ToEeUserAndErUserMap">
+SELECT 
+	order_form.*,employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait,
+    TIMESTAMPDIFF(SECOND,order_form.order_start_time,wait_time.starttime ) as watime,
+	(order_form.estimatedTimeOfArrival*60)AS miao,
+	sec_to_time(TIMESTAMPDIFF(SECOND,wait_time.starttime ,wait_time.endtime)) as DDtime,
+	TIMESTAMPDIFF(SECOND,wait_time.starttime,order_form.order_start_time) AS ChiDaoTime
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid = employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+LEFT JOIN wait_time ON order_form.id = wait_time.orderid
+ <![CDATA[  where erid <>'0' ]]> and order_form.id  =#{id,jdbcType=VARCHAR}
+  </select>
+  <!-- 查询招工次数 -->
+  <select id="selectWorks" resultMap="BaseResultMap">
+  SELECT COUNT(b.id) AS works FROM 
+(SELECT
+	order_form.id,order_form.erid,order_form.eeid,order_form.longitude,order_form.latitude,order_form.order_start_time,order_form.allcost,order_form.actualcost,order_form.starttime,order_form.endtime,order_form.payment,
+	order_form.status,employer_user.name,employer_user.username,employee_user.username GRusername,employee_user.name eename
+FROM
+	order_form
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id 
+<![CDATA[ WHERE  erid <>'0' ]]> and order_form.erid =#{id,jdbcType=INTEGER}
+<if test="eename !=null">
+and employee_user.name 
+
+ like  #{eename,jdbcType=VARCHAR} '%' 
+</if>
+<if test="GRusername !=null">
+and employee_user.username like  #{GRusername,jdbcType=VARCHAR} '%'
+</if>
+<if test="status !=null">
+and order_form.status =#{status,jdbcType=VARCHAR}
+</if>
+<if test="starttime !=null ">
+<![CDATA[
+and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+ AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+</if>
+)as b
+  </select>
+  
+    <!-- 查询 -->
+<select id="selectOrderForm" resultMap="ToEeUserAndErUserMap" >
+SELECT
+	order_form.id,order_form.erid,order_form.eeid,order_form.longitude,order_form.latitude,order_form.order_start_time,order_form.allcost,order_form.actualcost,order_form.starttime,order_form.endtime,order_form.payment,
+	order_form.status,employer_user.name,employer_user.username,employee_user.username GRusername,employee_user.name eename
+FROM
+	order_form
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id 
+WHERE 1=1 <![CDATA[  and erid <>'0' ]]> and order_form.erid =#{id,jdbcType=VARCHAR} 
+ <if test="eeid !=null">
+and order_form.eeid =#{eeid,jdbcType=VARCHAR}
+</if>
+<if test="eename !=null">
+and employee_user.name 
+
+ like '%' #{eename,jdbcType=VARCHAR} '%' 
+</if>
+<if test="GRusername !=null">
+and employee_user.username like '%' #{GRusername,jdbcType=VARCHAR} '%'
+</if>
+<if test="status !=null">
+and order_form.status =#{status,jdbcType=VARCHAR}
+</if>
+<if test="starttime !=null ">
+<![CDATA[
+and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+ AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+</if>
+</select>
+
+ <!--查询 分页 -->
+<select id="selectOrderFormPage" resultMap="ToEeUserAndErUserMap" >
+SELECT
+	order_form.id 
+
+,order_form.erid,order_form.eeid,order_form.longitude,order_form.latitude,order_form.order_start_time,order_form.allcost,order_form.actualcost,order_form.starttime,order_form.endtime,order_form.payment,
+	order_form.status,employer_user.name,order_form.estimatedTimeOfArrival
+
+,employer_user.username,employee_user.username GRusername,employee_user.name 
+
+ eename
+FROM
+	order_form
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id 
+
+WHERE 1=1 <![CDATA[  and erid <>'0' ]]> and order_form.erid =#{id,jdbcType=VARCHAR} 
+<if test="eeid !=null">
+and order_form.eeid =#{eeid,jdbcType=VARCHAR}
+</if>
+<if test="eename !=null">
+and employee_user.name 
+
+ like '%' #{eename,jdbcType=VARCHAR} '%' 
+</if>
+<if test="GRusername !=null">
+and	 employee_user.username like  '%' #{GRusername,jdbcType=VARCHAR} '%'
+</if>
+<if test="status !=null">
+and order_form.status =#{status,jdbcType=VARCHAR}
+</if> 
+<if test="starttime !=null ">
+<![CDATA[ 
+and order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+ ]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+ AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+</if>
+limit #{page},#{pageSize}
+</select>
+  
+    <!-- 查询招工个数   -->
+  <select id="selectCount" parameterType="int" resultMap="BaseResultMap">
+SELECT * FROM order_form,employer_user
+where order_form.erid=employer_user.id 
+
+AND
+employer_user.id 
+
+=#{id,jdbcType=INTEGER}
+  </select>
+  
+  <!--查询工人的工作记录  全部查询 总数-->
+  
+  <select id="GROrderFormPage" resultMap="ToEeUserAndErUserMap">
+  SELECT
+	order_form.*,  employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait
+FROM
+	order_form ,employee_user,employer_user
+where 1=1
+<if test=" name != null ">
+and employer_user.name  LIKE '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" starttime != null and endtime != null ">
+and 
+<![CDATA[ 
+	(order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR})
+
+]]>
+</if>
+<if test=" OrderID != null">
+and order_form.id=#{OrderID,jdbcType=VARCHAR}
+</if>
+ and order_form.eeid=employee_user.id
+ and order_form.erid=employer_user.id
+ and employee_user.id=#{id,jdbcType=INTEGER} 
+ </select>
+    <!--查询工人的工作记录  全部查询 总数分页-->
+    <select id="GROrderFormInfo" resultMap="ToEeUserAndErUserMap">
+  SELECT 
+	order_form.*,  employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait
+FROM 
+	order_form ,employee_user,employer_user
+where 1=1
+<if test=" name != null ">
+and employer_user.name  LIKE '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" starttime != null and endtime != null ">
+and
+<![CDATA[ 
+	(order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR})
+
+]]>
+</if>
+<if test="OrderID != null">
+and order_form.id=#{OrderID,jdbcType=VARCHAR}
+</if>
+ and order_form.eeid=employee_user.id
+ and order_form.erid=employer_user.id
+ and employee_user.id=#{id,jdbcType=INTEGER} 
+limit #{page},#{pageSize}
+ </select>
+
+  <!-- 查询订单分页 -->
+  <select id="selectByPagee6" resultMap="ToEeUserAndErUserMap" >
+
+SELECT 
+	order_form.*, TIMESTAMPDIFF(second,order_form.starttime,order_form.endtime) as workingHours ,employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait,
+	TIMESTAMPDIFF(SECOND,order_form.order_start_time,wait_time.starttime) as watime,
+	(order_form.estimatedTimeOfArrival*60)AS miao,
+	sec_to_time(TIMESTAMPDIFF(SECOND,wait_time.starttime ,wait_time.endtime)) as DDtime,
+	TIMESTAMPDIFF(minute,order_form.order_start_time,order_form.starttime) AS ChiDaoTime
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+LEFT JOIN wait_time ON order_form.id = wait_time.orderid
+where 1=1
+<if test="eename != null">
+and  employee_user.name like	 '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" payment != null">
+and order_form.payment= #{payment,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+<![CDATA[ 
+and erid <>'0'
+]]>
+order by order_form.id desc
+LIMIT  #{page},#{pageSize}
+  </select>
+  
+  <!-- 查询订单总数 -->
+  <select id="selectAlll6" resultMap="ToEeUserAndErUserMap">
+	
+SELECT 
+	order_form.*, TIMESTAMPDIFF(second,order_form.starttime,order_form.endtime) as workingHours ,employee_user.username GRusername,
+	employee_user.`name` eename,
+	employer_user.username username,
+	employer_user.`name` name,
+	employee_user.portrait,
+	TIMESTAMPDIFF(SECOND,order_form.order_start_time,wait_time.starttime) as watime,
+	(order_form.estimatedTimeOfArrival*60)AS miao,
+	sec_to_time(TIMESTAMPDIFF(SECOND,wait_time.starttime ,wait_time.endtime)) as DDtime,
+	TIMESTAMPDIFF(minute,order_form.order_start_time,order_form.starttime) AS ChiDaoTime
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+LEFT JOIN wait_time ON order_form.id = wait_time.orderid
+where 1=1
+<if test="eename != null">
+and  employee_user.name like	 '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" payment != null">
+and order_form.payment= #{payment,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+<![CDATA[ 
+and erid <>'0'
+]]>
+order by order_form.id desc
+</select>
+ 
+  
+  <!-- 查每个信息中 点单 -->
+  <select id="selectSingle" resultMap="BaseResultMap">
+  SELECT count(b.id) AS Single  FROM
+ (select order_form.id,order_form.erid,order_form.starttime,order_form.endtime,order_form.payment,order_form.allcost,order_form.status,order_form.order_start_time,order_form.latitude,order_form.longitude,employer_user.name,employer_user.username,employee_user.username GRusername,
+  employee_user.name eename
+  from
+  order_form
+LEFT JOIN employer_user ON order_form.erid = employer_user.id 
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id 
+where order_form.erid=#{id,jdbcType=INTEGER})AS b
+  </select>
+
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from order_form
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+    insert into order_form (id, eeid, erid, 
+      starttime, endtime, payment, 
+      allcost, actualcost)
+    values (#{id,jdbcType=INTEGER}, #{eeid,jdbcType=INTEGER}, #{erid,jdbcType=INTEGER}, 
+      #{starttime,jdbcType=VARCHAR}, #{endtime,jdbcType=VARCHAR}, #{payment,jdbcType=VARCHAR}, 
+      #{allcost,jdbcType=VARCHAR}, #{actualcost,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+    insert into order_form
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="eeid != null" >
+        eeid,
+      </if>
+      <if test="erid != null" >
+        erid,
+      </if>
+      <if test="starttime != null" >
+        starttime,
+      </if>
+      <if test="endtime != null" >
+        endtime,
+      </if>
+      <if test="payment != null" >
+        payment,
+      </if>
+      <if test="allcost != null" >
+        allcost,
+      </if>
+      <if test="actualcost != null" >
+        actualcost,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="eeid != null" >
+        #{eeid,jdbcType=INTEGER},
+      </if>
+      <if test="erid != null" >
+        #{erid,jdbcType=INTEGER},
+      </if>
+      <if test="starttime != null" >
+        #{starttime,jdbcType=VARCHAR},
+      </if>
+      <if test="endtime != null" >
+        #{endtime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null" >
+        #{payment,jdbcType=VARCHAR},
+      </if>
+      <if test="allcost != null" >
+        #{allcost,jdbcType=VARCHAR},
+      </if>
+      <if test="actualcost != null" >
+        #{actualcost,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+    update order_form
+    <set >
+      <if test="eeid != null" >
+        eeid = #{eeid,jdbcType=INTEGER},
+      </if>
+      <if test="erid != null" >
+        erid = #{erid,jdbcType=INTEGER},
+      </if>
+      <if test="starttime != null" >
+        starttime = #{starttime,jdbcType=VARCHAR},
+      </if>
+      <if test="endtime != null" >
+        endtime = #{endtime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null" >
+        payment = #{payment,jdbcType=VARCHAR},
+      </if>
+      <if test="allcost != null" >
+        allcost = #{allcost,jdbcType=VARCHAR},
+      </if>
+      <if test="actualcost != null" >
+        actualcost = #{actualcost,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+    update order_form
+    set eeid = #{eeid,jdbcType=INTEGER},
+      erid = #{erid,jdbcType=INTEGER},
+      starttime = #{starttime,jdbcType=VARCHAR},
+      endtime = #{endtime,jdbcType=VARCHAR},
+      payment = #{payment,jdbcType=VARCHAR},
+      allcost = #{allcost,jdbcType=VARCHAR},
+      actualcost = #{actualcost,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey1" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+    update order_form
+  <set>
+			
+			<if test="starttime != null">
+				starttime = #{starttime,jdbcType=VARCHAR},
+			</if>
+			<if test="endtime!=null">
+			 endtime = #{endtime,jdbcType=VARCHAR},
+			</if>
+			<if test="payment!=null">
+			 payment= #{payment,jdbcType=VARCHAR},
+			</if>
+			<if test="allcost!=null">
+			 allcost = #{allcost,jdbcType=VARCHAR},
+			</if>
+			<if test="actualcost!=null">
+			 actualcost = #{actualcost,jdbcType=VARCHAR},
+			</if>
+			<if test="latitude!=null">
+			 latitude = #{latitude,jdbcType=VARCHAR},
+			</if>
+			<if test="longitude!=null">
+			 longitude = #{longitude,jdbcType=VARCHAR},
+			</if>
+			<if test="status!=null">
+			 status = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="order_start_time!=null">
+			 order_start_time = #{order_start_time,jdbcType=VARCHAR}
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+  
+	<!-- 李奎的代码 -->
+	
+
+<!-- 查询分页 -->
+	<select id="selectOrderByTimeInfo"  resultMap="BaseMap">
+	SELECT order_form.*,employee_user.`name` AS Ername,employee_user.username AS Erusername,
+employer_user.`name`,employer_user.username,
+TIMESTAMPDIFF(minute,order_form.order_start_time,order_form.starttime) as watime,
+	(order_form.estimatedTimeOfArrival*60)AS miao,
+	sec_to_time(TIMESTAMPDIFF(SECOND,wait_time.starttime ,wait_time.endtime)) as DDtime,
+	TIMESTAMPDIFF(minute,order_form.order_start_time,order_form.starttime) AS ChiDaoTime
+FROM  order_form
+LEFT JOIN employee_user on order_form.eeid = employee_user.id 
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+LEFT JOIN wait_time ON order_form.id = wait_time.orderid
+where 1=1
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+and
+<![CDATA[ 
+		(order_start_time >=#{yesterday,jdbcType=VARCHAR}
+		AND order_start_time <=#{now,jdbcType=VARCHAR})
+		]]>
+      
+       limit #{page},#{pageSize}
+	</select>
+	
+	
+	<!-- 分页总数 -->
+	<select id="selectOrderByTime" resultMap="BaseMap">
+
+SELECT order_form.*,employee_user.`name` AS Ername,employee_user.username AS Erusername,
+employer_user.`name`,employer_user.username
+FROM order_form,employee_user,employer_user where 1=1
+
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+
+and
+<![CDATA[ 
+		(order_start_time >=#{yesterday,jdbcType=VARCHAR}
+		AND order_start_time <=#{now,jdbcType=VARCHAR})
+		]]>
+       AND order_form.eeid=employee_user.id
+       AND order_form.erid=employer_user.id
+    
+	</select>
+	
+	<select id="selectOrderFinishByTime" resultMap="BaseMap">
+	SELECT order_form.*,employee_user.`name` AS Ername,employee_user.username AS Erusername,
+employer_user.`name`,employer_user.username
+FROM order_form,employee_user,employer_user where 1=1
+
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" orderid != null">
+and order_form.id= #{orderid,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.payment = #{btu,jdbcType=VARCHAR} 
+</if>
+
+and
+<![CDATA[ 
+(order_start_time >=#{yesterday,jdbcType=VARCHAR}
+AND order_start_time <=#{now,jdbcType=VARCHAR})
+]]>
+       AND order_form.eeid=employee_user.id
+       AND order_form.erid=employer_user.id
+	  AND(order_form.status = '已完成' AND payment != "")
+	</select>
+	
+	<select id="selectOrderFinishByYesterdayInfo" resultMap="BaseMap">
+	SELECT order_form.*,employee_user.`name` AS Ername,employee_user.username AS Erusername,
+employer_user.`name`,employer_user.username
+FROM order_form,employee_user,employer_user where 1=1
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" orderid != null">
+and order_form.id= #{orderid,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.payment = #{btu,jdbcType=VARCHAR} 
+</if>
+and
+<![CDATA[ 
+		(order_start_time >=#{yesterday,jdbcType=VARCHAR}
+		AND order_start_time <=#{now,jdbcType=VARCHAR})
+		]]>
+       AND order_form.eeid=employee_user.id
+       AND order_form.erid=employer_user.id
+	  AND (order_form.status = '已完成' AND payment != "")
+	  limit #{page},#{pageSize}
+		
+	</select>
+		<!--kw===============================================  -->
+	  <update id="updateOrderByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.OrderForm" >
+	 update order_form
+	 	set
+	      starttime = now(),
+	      endtime = now(),
+	      payment = '订单取消',
+	      allcost = 0,
+	      actualcost = 0,
+	      status ='已完成',
+	      order_start_time = now(),
+	      eecost = 0
+	    where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	  <!-- 查询微信订单前数 -->
+  <select id="WeiXinMoney" resultMap="BaseResultMap">
+  SELECT sum(order_form.actualcost)AS weiXinMoney,payment
+FROM order_form
+<![CDATA[  where  order_form.erid<>0 ]]>
+AND payment='微信支付' 
+  </select>
+  <!-- 查询支付宝订单前数 -->
+  <select id="ZhiFuBaoMoney" resultMap="BaseResultMap">
+  SELECT sum(order_form.actualcost)AS zhiFuBaoMoney,payment
+FROM order_form
+<![CDATA[  where  order_form.erid<>0 ]]>
+AND payment='支付宝支付' 
+  </select>
+  <!-- 查余额支付订单前数 -->
+  <select id="YueMoney" resultMap="BaseResultMap">
+  SELECT sum(order_form.actualcost)AS yuemoney
+FROM order_form
+<![CDATA[  where  order_form.erid<>0 ]]>
+AND payment='余额支付' 
+  </select>
+  
+  <!-- 微信支付的订单 -->
+  <select id="selectPaymentWeiXin" resultMap="ToEeUserAndErUserMap">
+    SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+<![CDATA[  where  order_form.erid<>0 ]]>
+and order_form.payment ='微信支付'
+<if test="eename != null">
+and  employee_user.name like '%'#{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  '%'#{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 微信支付的订单分页 -->
+  <select id="selectPaymentWeiXinPage" resultMap="ToEeUserAndErUserMap" parameterType="com.bangshuo.kuaigong.po.OrderForm">
+    SELECT 
+	order_form.*,
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+where 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='微信支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+limit  #{page},#{pageSize}
+  </select>
+  
+   <!-- 微信支付方式的数量 -->
+  <select id="selectPaymentWeiXinCount" resultMap="BaseResultMap">
+   select count(order_form.id)AS paymentWeiXinCount,
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='微信支付'
+<if test="eename != null">
+and  employee_user.name like  #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 微信支付方式的金额 -->
+  <select id="selectPaymentWeiXinMoney" resultMap="BaseResultMap">
+SELECT order_form.id,order_form.eeid,order_form.erid,order_form.starttime,order_form.endtime,order_form.payment,
+order_form.allcost,sum(order_form.actualcost)AS paymentWeiXinMoney,order_form.`status`,order_form.order_start_time,
+order_form.latitude,order_form.longitude,employee_user.`name` AS eename,employee_user.username AS GRusername,
+employer_user.`name`,employer_user.username
+FROM order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user on order_form.erid=employer_user.id 
+where 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='微信支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+  
+  <!-- 支付宝支付的订单 -->
+  <select id="selectPaymentZhiFuBao" resultMap="ToEeUserAndErUserMap">
+    SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+<![CDATA[  where  order_form.erid<>0 ]]>
+and order_form.payment ='支付宝支付'
+<if test="eename != null">
+and  employee_user.name like '%'#{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  '%'#{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 支付宝支付的订单分页 -->
+  <select id="selectPaymentZhiFuBaoPage" resultMap="ToEeUserAndErUserMap">
+    SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+where 1=1 
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='支付宝支付'
+<if test="eename != null">
+and  employee_user.name like #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+limit  #{page},#{pageSize}
+  </select>
+  
+   <!-- 支付宝支付方式的数量 -->
+  <select id="selectPaymentZhiFuBaoCount" resultMap="BaseResultMap">
+select count(order_form.id)AS paymentZhiFuBaoCount,
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and  order_form.payment ='支付宝支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 支付宝支付方式的金额 -->
+  <select id="selectPaymentZhiFuBaoMoney" resultMap="BaseResultMap">
+SELECT order_form.id,order_form.eeid,order_form.erid,order_form.starttime,order_form.endtime,order_form.payment,
+order_form.allcost,sum(order_form.actualcost)AS paymentZhiFuBaoMoney,order_form.`status`,order_form.order_start_time,
+order_form.latitude,order_form.longitude,employee_user.`name` AS eename,employee_user.username AS GRusername,
+employer_user.`name`,employer_user.username
+FROM order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user on order_form.erid=employer_user.id 
+where 1=1 
+<![CDATA[ and order_form.erid<>0 ]]>
+and  order_form.payment ='支付宝支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+  
+  <!-- 余额支付的订单 -->
+  <select id="selectPaymentYue" resultMap="ToEeUserAndErUserMap">
+    SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+<![CDATA[  where  order_form.erid<>0 ]]>
+and order_form.payment ='余额支付'
+<if test="eename != null">
+and  employee_user.name like '%'#{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  '%'#{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 余额支付的订单分页 -->
+  <select id="selectPaymentYuePage" resultMap="ToEeUserAndErUserMap">
+    SELECT 
+	order_form.*, 
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+where 1=1 
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='余额支付'
+<if test="eename != null">
+and  employee_user.name like #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+limit  #{page},#{pageSize}
+  </select>
+  
+     <!-- 余额支付方式的数量 -->
+  <select id="selectPaymentYueCount" resultMap="BaseResultMap">
+select count(order_form.id)AS paymentYueCount,
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and  order_form.payment ='余额支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+    <!-- 余额支付方式的金额 -->
+  <select id="selectPaymentYueMoney" resultMap="BaseResultMap">
+SELECT order_form.id,order_form.eeid,order_form.erid,order_form.starttime,order_form.endtime,order_form.payment,
+order_form.allcost,sum(order_form.actualcost)AS paymentYueCount,order_form.`status`,order_form.order_start_time,
+order_form.latitude,order_form.longitude,employee_user.`name` AS eename,employee_user.username AS GRusername,
+employer_user.`name`,employer_user.username
+FROM order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id 
+LEFT JOIN employer_user on order_form.erid=employer_user.id 
+where 1=1 
+<![CDATA[ and order_form.erid<>0 ]]>
+and  order_form.payment ='余额支付'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+  <!-- 取消的订单数 -->
+  <select id="cancelCount" resultMap="BaseResultMap">
+  select count(order_form.id)AS cancelOrderCount
+	FROM  order_form
+where order_form.payment ='订单取消'
+  </select>
+  <!-- 取消的订单 -->
+  <select id="cancelOrder" resultMap="ToEeUserAndErUserMap">
+SELECT
+	order_form.id,order_form.eeid,order_form.erid,order_form.payment,order_form.`status`,
+	employee_user.username GRusername,employee_user. NAME eename,employer_user.username,employer_user. NAME,
+	cancel_order.time,cancel_order.type
+FROM
+	order_form
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+LEFT JOIN cancel_order ON order_form.id = cancel_order.order_id
+<![CDATA[  where  order_form.erid<>0 ]]>
+and order_form.payment ='订单取消'
+<if test="eename != null">
+and  employee_user.name like '%'#{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  '%'#{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+GROUP BY order_form.id desc
+  </select>
+  	
+    <!-- 取消的订单分页 -->
+  <select id="cancelOrderPage" resultMap="ToEeUserAndErUserMap">
+SELECT
+	order_form.id,order_form.eeid,order_form.erid,order_form.payment,order_form.`status`,TIMESTAMPDIFF(second,order_form.starttime,order_form.endtime) as workingHours,
+	employee_user.username GRusername,employee_user. NAME eename,employer_user.username,employer_user. NAME,
+	cancel_order.time,cancel_order.type
+FROM
+	order_form
+LEFT JOIN employee_user ON order_form.eeid = employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+LEFT JOIN cancel_order ON order_form.id = cancel_order.order_id
+where 1=1 
+<![CDATA[ and order_form.erid<>0 ]]>
+and order_form.payment ='订单取消'
+<if test="eename != null">
+and  employee_user.name like #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+GROUP BY order_form.id desc
+limit  #{page},#{pageSize}
+  </select>
+  	
+     <!-- 取消的订单数量 -->
+  <select id="cancelOrderCount" resultMap="BaseResultMap">
+select count(order_form.id)AS paymentCancelCount,
+	employee_user.username GRusername,
+	employee_user.name eename,
+	employer_user.username,
+	employer_user.name
+	FROM  order_form
+LEFT JOIN employee_user on order_form.eeid=employee_user.id
+LEFT JOIN employer_user ON order_form.erid = employer_user.id
+WHERE 1=1
+<![CDATA[ and order_form.erid<>0 ]]>
+and  order_form.payment ='订单取消'
+<if test="eename != null">
+and  employee_user.name like '%' #{eename,jdbcType=VARCHAR} '%'
+</if>
+<if test="name != null">
+and  employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" id != null">
+and order_form.id= #{id,jdbcType=VARCHAR}
+</if>
+<if test=" btu != null">
+and order_form.status = #{btu,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	order_form.starttime >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND order_form.endtime <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+  </select>
+  
+</mapper>

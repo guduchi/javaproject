@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.AppraiseMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.Appraise">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="eeid" property="eeid" jdbcType="INTEGER" />
+		<result column="erid" property="erid" jdbcType="INTEGER" />
+		<result column="starlevel" property="starlevel" jdbcType="VARCHAR" />
+		<result column="orderid" property="orderid" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+		<result column="star" property="star" jdbcType="VARCHAR" />
+		<result column="appcount" property="appcount" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.AppraiseToUser" id="AppraiseToUser"
+		extends="BaseResultMap">
+		<result column="GID" property="GID" />
+		<result column="erid" property="erid" />
+		<result column="username" property="username" />
+		<result column="Eeusername" property="Eeusername" />
+		<result column="name" property="name" />
+		<result column="eename" property="eename" />
+		<result column="ername" property="ername" />
+		<result column="count" property="count" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, eeid, erid, starlevel,orderid
+	</sql>
+
+  
+  <!-- 查询订单后的评价 -->
+  <select id="selectOrderApp" resultMap="AppraiseToUser">
+SELECT appraise.*,
+employee_user.`name` eename,
+employee_user.username Eeusername,
+employer_user.`name`,
+employer_user.username
+ from	appraise
+LEFT JOIN employee_user on appraise.eeid = employee_user.id
+LEFT JOIN employer_user on appraise.erid = employer_user.id
+WHERE  appraise.orderid =#{id,jdbcType=INTEGER}
+  </select>
+  
+	<!-- 查询业务员下工人的评价 -->
+	<select id="selectAppCount" resultMap="BaseResultMap">
+		SELECT COUNT(b.id)AS appcount FROM
+		(SELECT
+		appraise.id,appraise.eeid,appraise.erid,appraise.orderid,appraise.starlevel,employee_user.
+		NAME eename,employer_user. NAME ername
+		FROM
+		appraise
+		LEFT JOIN employee_user ON appraise.eeid = employee_user.id
+		LEFT JOIN employer_user ON appraise.erid = employer_user.id
+		where 1=1<![CDATA[  and appraise.orderid<>0]]>
+		and appraise.eeid=#{id,jdbcType=INTEGER}
+		<if test=" ername !=null">
+			and employer_user.name like '%' #{ername,jdbcType=VARCHAR} '%'
+		</if>
+		<if test=" erid !=null">
+			and appraise.erid =#{erid,jdbcType=VARCHAR}
+		</if>
+		)AS b
+	</select>
+
+	<!-- 查询评价 -->
+	<select id="QueryUserAll" resultMap="AppraiseToUser">
+		select
+		appraise.orderid,appraise.starlevel,employer_user.id,employer_user.name,employee_user.name
+		Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id =#{id,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryTheCount" resultMap="BaseResultMap">
+	SELECT count(id)as count FROM 
+(
+select
+		appraise.orderid,appraise.starlevel,employer_user.id,employer_user.name,employee_user.name
+		Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id=#{id,jdbcType=INTEGER})AS b
+	</select>
+
+	<!-- 查询业务员管理的工人评价记录 -->
+	<select id="selectBySalesApp" resultMap="AppraiseToUser">
+		SELECT
+		appraise.id,appraise.eeid,appraise.erid,appraise.orderid,appraise.starlevel,employee_user.
+		NAME eename,employer_user. NAME ername
+		FROM
+		appraise
+		LEFT JOIN employee_user ON appraise.eeid = employee_user.id
+		LEFT JOIN employer_user ON appraise.erid = employer_user.id
+		where 1=1 <![CDATA[  and appraise.orderid<>0]]>
+		and appraise.eeid =#{id,jdbcType=INTEGER}
+		<if test=" ername !=null">
+			and employer_user.name like '%' #{ername,jdbcType=VARCHAR} '%'
+		</if>
+		<if test=" erid !=null">
+			and appraise.erid =#{erid,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 查询业务员管理的工人评价记录分页 -->
+	<select id="selectBySalesAppPage" resultMap="AppraiseToUser">
+		SELECT
+		appraise.id,appraise.eeid,appraise.erid,appraise.orderid,appraise.starlevel,employee_user.
+		NAME eename,employer_user. NAME ername
+		FROM
+		appraise
+		LEFT JOIN employee_user ON appraise.eeid = employee_user.id
+		LEFT JOIN employer_user ON appraise.erid = employer_user.id
+		where 1=1 <![CDATA[  and appraise.orderid<>0]]>
+		and appraise.eeid =#{id,jdbcType=INTEGER}
+		<if test=" ername !=null">
+			and employer_user.name like '%' #{ername,jdbcType=VARCHAR} '%'
+		</if>
+		<if test=" erid !=null">
+			and appraise.erid =#{erid,jdbcType=VARCHAR}
+		</if>
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 查看每个信息中 查看雇主评价 -->
+	<select id="selectStar" resultMap="BaseResultMap">
+		SELECT count(b.id) AS star from
+		(select appraise.id,appraise.orderid,appraise.starlevel,employer_user.id
+		GID,employer_user.name,employee_user.name Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id=#{id,jdbcType=INTEGER}) as b
+	</select>
+	
+	<!-- 查询评价 -->
+	<select id="selectAppraise9" resultMap="AppraiseToUser">
+		select appraise.id,appraise.orderid,appraise.starlevel,employer_user.id
+		GID,employer_user.name,employee_user.name Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id=#{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询评价分页 -->
+	<select id="selectAppraisePAGe" resultMap="AppraiseToUser">
+		select
+		appraise.id,appraise.erid,appraise.orderid,appraise.starlevel,employer_user.id
+		GID,employer_user.name,employee_user.name Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id=#{id,jdbcType=INTEGER} limit #{page},#{pageSize}
+	</select>
+	
+	<!-- 查询评价分页 -->
+	<select id="QueryUserPaGe" resultMap="AppraiseToUser">
+		select appraise.id,appraise.orderid,appraise.starlevel,employer_user.id
+		GID,employer_user.name,employee_user.name Eeusername
+		from appraise
+		LEFT JOIN employer_user ON employer_user.id=appraise.erid
+		LEFT JOIN employee_user ON employee_user.id=appraise.eeid
+		where employer_user.id =#{id,jdbcType=VARCHAR} limit #{page},#{pageSize}
+	</select>
+	
+	<!-- 删除 -->
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from appraise
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<!-- 更新 -->
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.Appraise">
+		update appraise
+		set orderid = #{orderid,jdbcType=INTEGER},
+		starlevel = #{starlevel,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

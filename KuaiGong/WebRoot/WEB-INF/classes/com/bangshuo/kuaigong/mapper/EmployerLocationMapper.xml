@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerLocationMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployerLocation" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+    <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+    <result column="count" property="count" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap type="com.bangshuo.kuaigong.po.LocationToEmployerUser" id="LocationToEmployerUser">
+  <id column="id" property="id" jdbcType="INTEGER"/>
+  <result column="username" property="username" jdbcType="VARCHAR"/>
+  <result column="name" property="name" jdbcType="VARCHAR"/>
+  <result column="hand" property="hand" jdbcType="VARCHAR"/>
+  </resultMap>
+  
+ <!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerLocation">
+		SELECT 	COUNT(employer_location.id) as count,
+				employer_user.`name`
+	from employer_location
+LEFT JOIN employer_user on employer_location.erid = employer_user.id
+where  1=1
+		<if test="query != null">
+	and name like  #{query,jdbcType=VARCHAR} '%'
+	</if>
+	</select>
+ 
+  <sql id="Base_Column_List" >
+    id, erid, longitude, latitude
+  </sql>
+  <!--  雇主地图 -->
+  <select id="queryAllDiTu" resultMap="LocationToEmployerUser">
+		SELECT
+	employer_user.id,employer_user. NAME,employer_user.username,
+	employer_user.hand,employer_location.longitude,employer_location.latitude
+FROM
+	employer_user
+LEFT JOIN employer_location ON employer_user.id = employer_location.erid
+	</select>
+	
+<select id="selectNameOrUsername1" resultMap="LocationToEmployerUser">
+  select employer_location.id,employer_user.username,employer_user.name,employer_location.longitude,employer_location.latitude
+  from employer_location,employer_user
+  where employer_location.erid=employer_user.id 
+  and
+  name like #{name,jdbcType=VARCHAR} OR username like #{username,jdbcType=VARCHAR}
+ </select>
+<!-- 模糊查询总数-->
+ <select id="selectNameOrUsername" resultMap="LocationToEmployerUser">
+  select employer_location.id,employer_user.username,employer_user.name,employer_location.longitude,employer_location.latitude
+  from employer_location,employer_user
+  where employer_location.erid=employer_user.id 
+  and
+  name like #{name,jdbcType=VARCHAR} OR username like #{username,jdbcType=VARCHAR}
+ </select>
+ <!-- 模糊查询分页 -->
+ <select id="selectNameOrUsernameByPaGe" resultMap="LocationToEmployerUser">
+ select employer_location.id,employer_user.username,employer_user.name,employer_user.hand,employer_location.longitude,employer_location.latitude
+  from employer_location,employer_user
+  where employer_location.erid=employer_user.id 
+  and
+  name like #{name,jdbcType=VARCHAR} OR username like #{username,jdbcType=VARCHAR}  limit #{page},#{pageSize}
+ </select>
+  
+   <select id="selectLocation" resultMap="LocationToEmployerUser">
+ select employer_location.id,employer_location.erid,employer_user.username,employer_user.name,employer_location.longitude,employer_location.latitude
+ from employer_location,employer_user
+ where employer_location.erid=employer_user.id and employer_location.id=#{id,jdbcType=INTEGER}
+   </select>
+   
+   <select id="selectByPrimaryKey1" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from employer_location
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+   
+   
+   
+    <select id="selectByPage" resultMap="LocationToEmployerUser" >
+  		select
+	employer_location.id,employer_location.longitude,employer_location.latitude,employer_user.name,employer_user.username from employer_location,employer_user
+	where 1=1
+	<if test="query != null">
+	and name like '%' #{query,jdbcType=VARCHAR} '%'
+	</if>
+	and
+   employer_user.id=employer_location.erid 
+      order by id desc
+   limit #{page},
+  	#{pageSize}
+  </select>
+  
+  
+	<select id="selectPage" resultMap="LocationToEmployerUser">
+	select
+	employer_location.id,employer_location.longitude,employer_location.latitude,employer_user.name,employer_user.username from employer_location,employer_user
+	where 1=1
+	<if test="query != null">
+	and name like '%' #{query,jdbcType=VARCHAR} '%'
+	</if>
+	and
+   employer_user.id=employer_location.erid
+   order by id desc
+	</select>
+	
+	<select id="EmployerLocation" resultMap="LocationToEmployerUser">
+	select employer_location.*,employer_user.username,employer_user.name,employer_user.hand
+	from employer_location,employer_user
+	where employer_location.id =#{erid,jdbcType=INTEGER} 
+	and longitude=#{longitude,jdbcType=VARCHAR}
+	and latitude=#{latitude,jdbcType=VARCHAR}
+	and employer_user.id=employer_location.erid
+	
+	</select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from employer_location
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from employer_location
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.EmployerLocation" >
+    insert into employer_location (id, erid, longitude, 
+      latitude)
+    values (#{id,jdbcType=INTEGER}, #{erid,jdbcType=INTEGER}, #{longitude,jdbcType=VARCHAR}, 
+      #{latitude,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.EmployerLocation" >
+    insert into employer_location
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="erid != null" >
+        erid,
+      </if>
+      <if test="longitude != null" >
+        longitude,
+      </if>
+      <if test="latitude != null" >
+        latitude,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="erid != null" >
+        #{erid,jdbcType=INTEGER},
+      </if>
+      <if test="longitude != null" >
+        #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        #{latitude,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.EmployerLocation" >
+    update employer_location
+    <set >
+     
+      <if test="longitude != null" >
+        longitude = #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        latitude = #{latitude,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+ 
+</mapper>

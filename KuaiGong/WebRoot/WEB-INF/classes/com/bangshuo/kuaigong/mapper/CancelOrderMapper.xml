@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.CancelOrderMapper">
+		<resultMap id="BaseResultMap"  type="com.bangshuo.kuaigong.po.CancelOrder" >
+				<id column="id" property="id" jdbcType="INTEGER"/>
+				<result column="orderid" property="orderid" jdbcType="INTEGER" />
+				<result column="time" property="time" jdbcType="VARCHAR"/>
+				<result column="type" property="type" jdbcType="VARCHAR"/>
+		</resultMap>
+		<resultMap type="com.bangshuo.kuaigong.po.CancelOrderToMany" id="OrderFormCancel" 
+		extends="BaseResultMap">
+		 	<result column="id" property="id" jdbcType="INTEGER"/>
+		 	<result column="eeid" property="eeid" jdbcType="INTEGER"/>
+		 	<result column="erid" property="erid" jdbcType="INTEGER"/>
+		 	<result column="payment"  property="payment"  jdbcType="VARCHAR"/>
+		 	<result column="status" property="status" jdbcType="VARCHAR"/>
+		 	<result column="eename" property="eename" jdbcType="VARCHAR"/>
+		 	<result column="eeusername" property="eeusername" jdbcType="VARCHAR"/>
+		 	<result column="name" property="name" jdbcType="VARCHAR"/>
+		 	<result column="username" property="username" jdbcType="VARCHAR"/>
+		</resultMap>
+		<sql id="Base_Column_List">
+		id,order_id,money,time,type
+	</sql>
+	
+		  
+<insert id="insertOrderByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.CancelOrder">
+insert into cancel_order (id, order_id, time,type)
+		values (null, #{orderid,jdbcType=INTEGER},NOW(),'后台取消！')
+</insert>
+
+<!-- 查询取消订单表 -->
+<select id="selectCancelOrder" resultMap="OrderFormCancel">
+SELECT  order_form.id,order_form.eeid,order_form.erid,order_form.payment,
+				employee_user.name eename,employer_user.name,
+				employee_user.username eeusername,employer_user.username,
+				cancel_order.time,cancel_order.type
+		FROM order_form
+		LEFT JOIN employee_user on order_form.eeid = employee_user.id
+		LEFT JOIN employer_user on order_form.erid = employer_user.id
+		LEFT JOIN cancel_order on order_form.id=cancel_order.order_id
+		where  order_form.id=#{id,jdbcType = INTEGER}
+</select>
+</mapper>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerUserWalletMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployerUserWallet" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="balance" property="balance" jdbcType="DOUBLE" />
+    <result column="count" property="count" jdbcType="VARCHAR" />
+    </resultMap>
+ <resultMap id="queryWallet" type="com.bangshuo.kuaigong.po.EmployerUserWalletToEruser" extends="BaseResultMap">
+    <id column="id" property="id" jdbcType="INTEGER" />
+      <id column="erid" property="erid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+     <result column="balance" property="balance" jdbcType="VARCHAR" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    </resultMap>
+  <sql id="Base_Column_List" >
+    id, erid, balance
+  </sql>
+   
+
+        <!-- 根据雇主金额排序 总数-->
+  <select id="selectByWalletSort" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where 1=1
+  <if test="name !=null">
+  and employer_user.name like '%'#{name,jdbcType=VARCHAR}'%'
+  </if>
+ 
+  and employer_wallet.erid=employer_user.id
+   order by balance desc
+  </select>
+      <!-- 根据雇主金额排序分页 -->
+        <select id="selectByWalletPageInfo" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where 1=1
+  <if test="name !=null">
+  and employer_user.name like '%'#{name,jdbcType=VARCHAR}'%'
+  </if>
+ 
+  and employer_wallet.erid=employer_user.id
+   order by balance desc
+   limit #{page},#{pageSize}
+  </select>
+  	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerUserWallet">
+		SELECT COUNT(employer_wallet.id) as count ,
+employer_user.`name`
+from employer_wallet
+LEFT JOIN employer_user on employer_wallet.erid = employer_user.id
+		where 1=1
+		  <if test="name !=null">
+		  and employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+		  </if>
+	</select>
+  
+  <!-- 模糊查询分页 -->
+   <select id="MoHuChaXun" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where employer_wallet.erid=employer_user.id
+  and name like  #{name,jdbcType=VARCHAR}
+  
+  </select>
+  
+    <select id="MoHuChaXunPaGe" resultMap="queryWallet">
+  
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where employer_wallet.erid=employer_user.id
+  and name like  #{name,jdbcType=VARCHAR}
+  limit #{page},#{pageSize}
+  </select>
+  
+  <!-- 查询个人雇主钱包总数 -->
+  <select id="selectQueryWalletByid" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where employer_wallet.erid=#{erid,jdbcType=INTEGER}
+  and employer_wallet.erid=employer_user.id
+ </select>
+  <!-- 查询个人雇主钱包分页 -->
+    <select id="selectQueryWalletByidPage" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where employer_wallet.erid=#{erid,jdbcType=INTEGER}
+  and employer_wallet.erid=employer_user.id
+  limit #{page},#{pageSize}
+ </select>
+  <!-- 查询雇主分页 -->
+   <select id="selectByWalletPage" resultMap="queryWallet">
+  
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where 1=1
+  <if test="name !=null">
+  and employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+  </if>
+  
+  and employer_wallet.erid=employer_user.id
+  order by id desc
+  limit #{page},#{pageSize}
+  </select>
+  <!-- 查询雇主 -->
+  <select id="selectByWallet" resultMap="queryWallet">
+  select employer_wallet.id,employer_wallet.erid,employer_wallet.balance,employer_user.name,employer_user.username
+  from employer_wallet,employer_user
+  where 1=1
+  <if test="name !=null">
+  and employer_user.name like '%'#{name,jdbcType=VARCHAR}'%'
+  </if>
+ 
+  and employer_wallet.erid=employer_user.id
+   order by id desc
+  </select>
+ <!-- 雇主充值 -->
+  <update id="updateWallet" parameterType="com.bangshuo.kuaigong.po.EmployerUserWallet" >
+      update employer_wallet
+    <set >
+     <if test="balance != null" >
+        balance = balance+#{balance,jdbcType=DOUBLE}
+      </if> 
+    </set>
+    where employer_wallet.erid = #{id,jdbcType=INTEGER}
+  </update>
+ 
+ 
+  <update id="NewupdateWallet" parameterType="com.bangshuo.kuaigong.po.EmployerUserWallet" >
+    update employer_wallet
+   set
+     
+        balance = balance+#{balance,jdbcType=DOUBLE}
+   
+
+    where employer_wallet.erid = #{id,jdbcType=INTEGER}
+  </update>
+ 
+    <update id="updateWalletMoney" parameterType="com.bangshuo.kuaigong.po.EmployerUserWallet" >
+      update employer_wallet
+    <set >
+     <if test="balance != null" >
+        balance =#{balance,jdbcType=DOUBLE}
+      </if> 
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

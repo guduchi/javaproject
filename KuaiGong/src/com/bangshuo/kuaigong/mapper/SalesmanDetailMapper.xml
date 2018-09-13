@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.SalesmanDetailMapper">
+		<resultMap id="BaseResultMap"  type="com.bangshuo.kuaigong.po.SalesmanDetail" >
+				<id column="id" property="id" jdbcType="INTEGER"/>
+				<result column="salesmanId" property="salesmanId" jdbcType="INTEGER" />
+				<result column="money" property="money" jdbcType="VARCHAR"/>
+				<result column="time" property="time" jdbcType="VARCHAR"/>
+				<result column="desc" property="desc" jdbcType="VARCHAR"/>
+				<result column="totalMoney" property="totalMoney" jdbcType="VARCHAR"/>
+				<result column="count" property="count" jdbcType="VARCHAR"/>
+		</resultMap>
+  <resultMap type="com.bangshuo.kuaigong.po.SalesmanToDetail" id="SalesmanToDetail" extends="BaseResultMap">
+  <result column="salesmanName" property="salesmanName" jdbcType="VARCHAR"/>
+  <result column="username" property="username" jdbcType="VARCHAR"/>
+  </resultMap>
+				
+		
+		<sql id="Base_Column_List">
+		id,salesmanId,money,time,desc,totalMoney
+	</sql>
+		  
+		  <!-- 查询信息条数 -->
+<select id="selectNum" resultMap="BaseResultMap"
+			 parameterType="com.bangshuo.kuaigong.po.SalesmanDetail">
+SELECT count(salesman_detail.id)as count ,salesman.salesmanName,salesman.username
+ from	 salesman_detail
+LEFT JOIN salesman on salesman_detail.salesman_id = salesman.id
+where 1=1
+<if test="salesmanName !=null">
+AND salesman.salesmanName like #{salesmanName,jdbcType=VARCHAR}
+</if>
+<if test="username !=null">
+AND salesman.username like #{username,jdbcType=VARCHAR}
+</if>
+<if test="desc !=null">
+AND salesman_detail.desc=#{desc,jdbcType=VARCHAR}
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	salesman_detail.time >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND salesman_detail.time <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+</select>
+		  <!-- 查询业务员的钱 -->
+<select id="selectMoney" resultMap="SalesmanToDetail">
+SELECT salesman_detail.*,salesman.salesmanName,salesman.username
+ from	 salesman_detail
+LEFT JOIN salesman on salesman_detail.salesman_id = salesman.id
+where 1=1
+<if test="salesmanName !=null">
+AND salesman.salesmanName like #{salesmanName,jdbcType=VARCHAR}
+</if>
+<if test="username !=null">
+AND salesman.username like #{username,jdbcType=VARCHAR}
+</if>
+<if test="desc !=null">
+AND salesman_detail.desc=#{desc,jdbcType=VARCHAR}
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	salesman_detail.time >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND salesman_detail.time <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+</select>
+		  <!-- 查询业务员的钱分页-->
+<select id="selectMoneyPage" resultMap="SalesmanToDetail">
+SELECT salesman_detail.*,salesman.salesmanName,salesman.username
+ from	 salesman_detail
+LEFT JOIN salesman on salesman_detail.salesman_id = salesman.id
+where 1=1
+<if test="salesmanName !=null">
+AND salesman.salesmanName like #{salesmanName,jdbcType=VARCHAR}
+</if>
+<if test="username !=null">
+AND salesman.username like #{username,jdbcType=VARCHAR}
+</if>
+<if test="desc !=null">
+AND salesman_detail.desc=#{desc,jdbcType=VARCHAR}
+</if>
+<if test=" starttime !=null">
+<![CDATA[ 
+and	salesman_detail.time >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime !=null">
+<![CDATA[ 
+AND salesman_detail.time <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+limit #{page},#{pageSize}
+</select>
+</mapper>

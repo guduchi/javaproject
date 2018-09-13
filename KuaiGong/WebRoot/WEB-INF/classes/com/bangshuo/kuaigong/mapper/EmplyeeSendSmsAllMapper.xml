@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmplyeeSendSmsAllMapper">
+   <!-- 迟云秋 -->
+   
+   
+	<!--二级缓存 -->
+	<cache />
+    <!--useCache="false" 禁用二级缓存
+        flushCache="true" 表示刷新缓存，避免脏读
+    -->
+	<!-- 封装3,7,没登录的天数封装 -->
+	<resultMap type="com.bangshuo.kuaigong.po.EmployeeSendSmsCount"
+		id="selectEmployerAllCount">
+		<result property="username" column="username" jdbcType="VARCHAR" />
+		<result property="countall" column="countall" jdbcType="VARCHAR" />
+
+	</resultMap>
+
+
+	<!--查询满足7天的数 -->
+	<select id="selectAllCountSevenDay" resultMap="selectEmployerAllCount"
+		useCache="false">
+
+
+		SELECT
+		username,COUNT(k.eeid) AS countall FROM (SELECT
+		DISTINCT eeid,
+		username,DATE_FORMAT(startime,'%Y-%m-%d') FROM
+		online_information,employee_user WHERE
+		DATE(online_information.`startime`) >= DATE_SUB(CURDATE(), INTERVAL 6
+		DAY)
+		AND online_information.eeid = employee_user.id
+		GROUP BY
+		online_information.id ORDER BY online_information.eeid ASC
+		,online_information.startime DESC ) AS k GROUP BY k.eeid
+
+
+	</select>
+	<!--查询满足3天的数 -->
+	<select id="selectAllCountThreeDay" resultMap="selectEmployerAllCount"
+		useCache="false">
+
+		SELECT
+		username,COUNT(k.eeid) AS countall FROM (SELECT
+		DISTINCT eeid,
+		username,DATE_FORMAT(startime,'%Y-%m-%d') FROM
+		online_information,employee_user WHERE
+		DATE(online_information.`startime`) >= DATE_SUB(CURDATE(), INTERVAL 2
+		DAY)
+		AND online_information.eeid = employee_user.id
+		GROUP BY
+		online_information.id ORDER BY online_information.eeid ASC
+		,online_information.startime DESC ) AS k GROUP BY k.eeid
+
+	</select>
+
+
+	<!--查询极光发送通知的Regid -->
+	<select id="selectAllSmsRegid" parameterType="com.bangshuo.kuaigong.po.EmployeeUser"
+		resultType="com.bangshuo.kuaigong.po.EmployeeUser" useCache="false">
+
+		SELECT
+		regid FROM employee_user where username=#{username}
+
+	</select>
+	<!--查询满足3天的条件，看是否一天重没重发发送 -->
+	<select id="selectAllSmstThree" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		resultType="com.bangshuo.kuaigong.po.EmployeeSendSms" useCache="false">
+
+		SELECT
+		* FROM sendsms where username=#{username} and
+		sendtimethird=#{sendtimethird};
+
+	</select>
+
+	<!--查询满足长时间没登录的条件，看是否一天重没重发发送 -->
+	<select id="selectAllSmsLongDay" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		resultType="com.bangshuo.kuaigong.po.EmployeeSendSms" useCache="false">
+
+		SELECT
+		* FROM sendsms where username=#{username} and
+		sendtimelong=#{sendtimelong};
+
+	</select>
+	<!--查询满足7天的条件，看是否一天重没重发发送 -->
+	<select id="selectAllSmsSevenDay" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		resultType="com.bangshuo.kuaigong.po.EmployeeSendSms" flushCache="true">
+
+		SELECT * FROM sendsms where username=#{username} and
+		sendtimeseven=#{sendtimeseven};
+
+	</select>
+
+	<!--3天重复，插入一天内发送的时间与用户名，以便判断重复发送 -->
+	<insert id="insertAllSmsThreeDay" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		flushCache="true">
+
+		INSERT INTO sendsms
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				username,
+			</if>
+
+			<if test="sendtimethird != null">
+				sendtimethird,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				#{username},
+			</if>
+			<if test="sendtimethird != null">
+				#{sendtimethird},
+			</if>
+
+		</trim>
+	</insert>
+	<!--7天重复，插入一天内发送的时间与用户名，以便判断重复发送 -->
+	<insert id="insertAllSmsSevenDay" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		flushCache="true">
+
+		INSERT INTO sendsms
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				username,
+			</if>
+
+			<if test="sendtimeseven != null">
+				sendtimeseven,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				#{username},
+			</if>
+			<if test="sendtimeseven != null">
+				#{sendtimeseven},
+			</if>
+
+		</trim>
+	</insert>
+
+	<!--长时间没登录，插入一天内发送的时间与用户名，以便判断重复发送 -->
+	<insert id="insertAllSmsLongDay" parameterType="com.bangshuo.kuaigong.po.EmployeeSendSms"
+		flushCache="true">
+
+		INSERT INTO sendsms
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				username,
+			</if>
+
+			<if test="sendtimelong != null">
+				sendtimelong,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="username != null">
+				#{username},
+			</if>
+			<if test="sendtimelong != null">
+				#{sendtimelong},
+			</if>
+
+		</trim>
+	</insert>
+
+
+</mapper>

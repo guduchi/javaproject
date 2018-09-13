@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.WalletMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.Wallet" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="eeid" property="eeid" jdbcType="INTEGER" />
+    <result column="balance" property="balance" jdbcType="DOUBLE" />
+    <result column="residue" property="residue" jdbcType="DOUBLE" />
+      <result column="count" property="count" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap type="com.bangshuo.kuaigong.po.WalletToUserAndToDe" id="UserAndToDeMap" extends="BaseResultMap">
+  <result column="username" property="username" jdbcType="VARCHAR"/>
+  <result column="name" property="name" jdbcType="VARCHAR"/>
+  <result column="cash" property="cash" jdbcType="VARCHAR"/>
+  <result column="time" property="time" jdbcType="VARCHAR"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, eeid, balance, residue
+  </sql>
+
+  <!-- 筛选可提现余额排序 -->
+  <select id="Newquerybalance" resultMap="UserAndToDeMap">
+     select wallet.id,truncate(wallet.balance,2),truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+  where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id
+   ORDER BY residue DESC 
+   </select>
+    <!-- 筛选可提现余额排序分页 -->
+     <select id="NewquerybalanceInfo" resultMap="UserAndToDeMap">
+     select wallet.id,truncate(wallet.balance,2),truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+  where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id
+   ORDER BY residue DESC 
+   limit #{page},#{pageSize}
+   </select>
+   
+  <!-- 筛选余额最高的 -->
+  <select id="querybalance" resultMap="UserAndToDeMap">
+   select wallet.id,truncate(wallet.balance,2),truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+  where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id
+   ORDER BY truncate(wallet.balance,2) DESC 
+  </select>
+  <!-- 筛选余额最高的分页 -->
+  <select id="querybalanceInfo" resultMap="UserAndToDeMap">
+   select wallet.id,truncate(wallet.balance,2) as balance ,truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+ where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id 
+  
+ ORDER BY balance DESC 
+  limit #{page},#{pageSize}
+  
+  </select>
+  <!-- 查询个人钱包总数 -->
+  <select id="selectWorkerWalletPage" resultMap="UserAndToDeMap">
+   SELECT
+	wallet.id,
+	truncate(wallet.balance,2) as balance,
+	truncate(
+		wallet.balance - limit_money.money
+	,2) AS residue,
+	employee_user. NAME,
+	employee_user.username
+FROM
+	wallet,
+	employee_user,
+	limit_money
+WHERE
+	wallet.eeid = employee_user.id
+and wallet.eeid=#{eeid,jdbcType=INTEGER}
+   </select>
+   <!-- 查询个人钱包分页 -->
+     <select id="selectWorkerWalletInfo" resultMap="UserAndToDeMap">
+   SELECT
+	wallet.id,
+	truncate(wallet.balance,2) as balance,
+	truncate(
+		wallet.balance - limit_money.money
+	,2) AS residue,
+	employee_user. NAME,
+	employee_user.username
+FROM
+	wallet,
+	employee_user,
+	limit_money
+WHERE
+	wallet.eeid = employee_user.id
+and wallet.eeid=#{eeid,jdbcType=INTEGER}
+limit #{page},#{pageSize}
+   </select>
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="UserAndToDeMap" >
+		SELECT COUNT(wallet.id) as count ,
+		employee_user.`name`
+		from wallet
+		LEFT JOIN employee_user on wallet.eeid = employee_user.id
+		where 1=1
+		 <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+	</select>
+  
+  <!-- 工人充值 -->
+  <update id="chongzhi" parameterType="com.bangshuo.kuaigong.po.Wallet" >
+      update wallet
+    <set >
+     <if test="balance != null" >
+        balance = balance+#{balance,jdbcType=DOUBLE}
+      </if>
+     
+    </set>
+    where eeid = #{id,jdbcType=INTEGER}
+  </update>
+  
+
+  
+    <!-- 根据工人姓名模糊查询 -->
+  <select id="selectByName" resultMap="UserAndToDeMap">
+ SELECT
+	wallet.id,
+	truncate(wallet.balance,2) as balance,
+	truncate(
+		wallet.balance - limit_money.money
+	,2) AS residue,
+	employee_user. NAME,
+	employee_user.username
+FROM
+	wallet,
+	employee_user,
+	limit_money
+WHERE
+	wallet.eeid = employee_user.id
+and employee_user.`name` LIKE #{name,jdbcType=VARCHAR}
+  </select>
+  <!-- 根据工人姓名模糊查询分页 -->
+  <select id="selectByNamePage" resultMap="UserAndToDeMap">
+ SELECT
+	wallet.id,
+	truncate(wallet.balance,2) as balance ,
+	truncate(
+		wallet.balance - limit_money.money,2
+	) AS residue,
+	employee_user. NAME,
+	employee_user.username
+FROM
+	wallet,
+	employee_user,
+	limit_money
+WHERE
+	wallet.eeid = employee_user.id
+and employee_user.`name` LIKE #{name,jdbcType=VARCHAR}
+ ORDER BY id DESC 
+  limit #{page},#{pageSize}
+  </select>
+  
+  
+  
+    <!-- 根据时间查询取钱 -->
+  <select id="queryData" resultMap="UserAndToDeMap">
+    select wallet.id,truncate(wallet.balance,2) as balance ,truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username,withdraw_deposit.cash,
+  withdraw_deposit.time
+  from wallet,employee_user,withdraw_deposit,limit_money
+  where wallet.eeid=employee_user.id and
+  withdraw_deposit.eeid=employee_user.id
+  <![CDATA[ 
+  and withdraw_deposit.time>=#{starttime,jdbcType=VARCHAR}
+  and withdraw_deposit.time<=#{endtime,jdbcType=VARCHAR}
+  ]]>
+  </select>
+  
+  
+  <!-- 查询工人，余额(全部)-->
+  <select id="queryAll" resultMap="UserAndToDeMap">
+   select wallet.id,truncate(wallet.balance,2),truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+  where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id ORDER BY id DESC 
+  </select>
+  <!-- 查询分页 -->
+  <select id="queryAllPaGe" resultMap="UserAndToDeMap">
+     select wallet.id,truncate(wallet.balance,2) as balance ,truncate(wallet.balance-limit_money.money,2) as residue,employee_user.name,employee_user.username
+  from wallet,employee_user,limit_money
+ where 1=1
+  <if test="name != null">
+  and employee_user.name like  #{name,jdbcType=VARCHAR} '%'
+  </if>
+  and wallet.eeid=employee_user.id ORDER BY id DESC 
+  limit #{page},#{pageSize}
+  
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wallet
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select * from wallet limit #{page},
+  	#{pageSize}
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+	select
+	<include refid="Base_Column_List" />
+	from  wallet
+	</select>
+  
+  <select id="selectByBalance" resultMap="BaseResultMap" parameterType="java.lang.String">
+  	select * from truncate(wallet,2) as wallet where balance like #{balance,jdbcType=VARCHAR} ;
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wallet
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.Wallet" >
+    insert into wallet (id, eeid, balance, 
+      residue)
+    values (#{id,jdbcType=INTEGER}, #{eeid,jdbcType=INTEGER}, #{balance,jdbcType=DOUBLE}, 
+      #{residue,jdbcType=DOUBLE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.Wallet" >
+    insert into wallet
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="eeid != null" >
+        eeid,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="residue != null" >
+        residue,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="eeid != null" >
+        #{eeid,jdbcType=INTEGER},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="residue != null" >
+        #{residue,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.Wallet" >
+       update wallet
+      
+       set
+     
+       balance = balance+#{balance,jdbcType=DOUBLE}
+      
+        where id = #{id,jdbcType=INTEGER}
+ 
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.Wallet" >
+    update wallet
+    set eeid = #{eeid,jdbcType=INTEGER},
+      balance = #{balance,jdbcType=DOUBLE},
+      residue = #{residue,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerSendAdviceAllMapper">
+	<!--二级缓存 -->
+	<cache />
+	<!--useCache="false" 禁用二级缓存 flushCache="true" 表示刷新缓存，避免脏读 -->
+	<!-- 封装3天有订单-->
+	<resultMap type="com.bangshuo.kuaigong.po.EmployerSendAdvice"
+		id="selectEmployerAllCountAdvice">
+		<result property="usernameemployer" column="usernameemployer" jdbcType="VARCHAR" />
+		<result property="timeemployer" column="timeemployer" jdbcType="VARCHAR" />
+		<result property="regidemployer" column="regidemployer" jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<!--查询满足三天的订单人 -->
+	<select id="selectMessageAdviceEmployer" resultMap="selectEmployerAllCountAdvice"
+		useCache="false">
+
+
+		SELECT k.b AS usernameemployer,COUNT(k.c) AS countallemployer
+		,k.m AS regidemployer FROM (SELECT DISTINCT
+		eeid,erid,employer_user.regid AS m,employee_user.username AS a
+		,employer_user.username AS b ,
+		DATE_FORMAT(order_start_time,'%Y-%m-%d') AS c FROM
+		order_form,employee_user,employer_user WHERE
+		DATE(order_form.order_start_time)>= DATE_SUB(CURDATE(),
+		INTERVAL 2 DAY)
+		AND order_form.erid = employer_user.id AND order_form.eeid =
+		employee_user.id
+		GROUP BY order_form.id ORDER BY order_form.eeid ASC
+		,DATE_FORMAT(order_start_time,'%Y-%m-%d') DESC ) AS k GROUP BY eeid
+
+
+
+	</select>
+	
+	
+	
+	<!--按同条件查询是否有重复发送 -->
+	<select id="selectMessageAdviceTimeEmployer" parameterType="com.bangshuo.kuaigong.po.EmployerSendAdviceTime"
+		resultType="com.bangshuo.kuaigong.po.EmployerSendAdviceTime" useCache="false">
+
+		SELECT
+		 * FROM sendadvice where usernameemployer=#{usernameemployer} and timeemployer=#{timeemployer}
+
+	</select>
+	
+		<!--满足条件插入进去，以便判断重复发送 -->
+	<insert id="insertTimeAdvice" parameterType="com.bangshuo.kuaigong.po.EmployerSendAdviceTime"
+		flushCache="true">
+
+		INSERT INTO sendadvice
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="usernameemployer != null">
+				usernameemployer,
+			</if>
+
+			<if test="timeemployer != null">
+				timeemployer,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="usernameemployer != null">
+				#{usernameemployer},
+			</if>
+			<if test="timeemployer != null">
+				#{timeemployer},
+			</if>
+
+		</trim>
+	</insert>
+	
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.rechargeMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.recharge" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="erid" property="erid" jdbcType="INTEGER"/>
+    <result column="recharge" property="recharge" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="VARCHAR" />
+ </resultMap>
+ <resultMap type="com.bangshuo.kuaigong.po.rechargeToEeUser" id="ToEeUserMapper" extends="BaseResultMap">
+ 
+  <result column="name" property="name" jdbcType="VARCHAR" />
+   <result column="username" property="username" jdbcType="VARCHAR" />
+  
+ </resultMap>
+  <sql id="Base_Column_List" >
+    id,cjid, recharge, time
+  </sql>
+
+  <select id="selectSum" resultType="java.lang.Integer">
+  select  sum(recharge) a   from recharge,employer_user where recharge.erid=employer_user.id
+  and
+  recharge.erid=#{id,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+  <select id="select" resultMap="ToEeUserMapper">
+  select recharge.id,recharge.recharge,recharge.time,employer_user.name,employer_user.username
+  from recharge,employer_user
+  where recharge.erid=employer_user.id
+  and
+  employer_user.id=#{id,jdbcType=VARCHAR}
+ </select>
+
+<select id="selectpage" resultMap="ToEeUserMapper">
+
+select recharge.id,recharge.recharge,recharge.time,employer_user.name,employer_user.username
+  from recharge,employer_user
+  where recharge.erid=employer_user.id
+  and
+  employer_user.id=#{id,jdbcType=VARCHAR} limit #{page},#{pageSize}
+</select>
+<select id="selectRechargeByTime" resultMap="BaseResultMap">
+		select *from
+		recharge where
+		<![CDATA[ 
+		(time >=#{starttime,jdbcType=VARCHAR}
+		AND time <= #{endtime,jdbcType=VARCHAR})
+		]]>
+	</select>
+
+</mapper>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerSendDispountMapper">
+	<!-- 迟云秋 -->
+
+
+	<!--二级缓存 -->
+	<cache />
+	<!--useCache="false" 禁用二级缓存 flushCache="true" 表示刷新缓存，避免脏读 -->
+	<select id="selectDiscountMessageFiveCount" resultType="com.bangshuo.kuaigong.po.EmployerSendDiscountFive"
+		useCache="false">
+
+
+		SELECT employer_user.name as empname,
+		order_form.erid AS
+		emperidfive,employer_user.username
+		AS
+		empusername,MAX(order_form.starttime )AS empstarttime,
+		employer_user.regid
+		AS empregid FROM order_form,employer_user ,(
+		SELECT
+		erid,username,starttime, regid FROM order_form ,employer_user WHERE
+		DATE(order_form.`starttime`) >= DATE_SUB(CURDATE(), INTERVAL 4 DAY)AND
+		order_form.erid = employer_user.id) AS c WHERE order_form.erid =
+		employer_user.id
+		AND order_form.erid NOT IN (c.erid) GROUP BY
+		emperidfive
+
+
+	</select>
+
+	<select id="selectDiscountMessageThreeCount" resultType="com.bangshuo.kuaigong.po.EmployerSendDiscountThree"
+		useCache="false">
+
+
+		SELECT
+		name,erid,username,regid,COUNT(erid) AS sendcount FROM
+		employer_user
+		,
+		order_form WHERE employer_user.id = order_form.erid AND
+		starttime
+		>=employer_user.time GROUP BY erid ORDER BY erid
+		ASC,starttime ASC
+
+
+
+	</select>
+
+	<select id="selectDiscountMessageThreeStartTime" parameterType="int"
+		resultType="com.bangshuo.kuaigong.po.EmployerSendDiscountStartTime"
+		useCache="false">
+
+
+
+		SELECT erid,MAX(starttime) AS starttimesend FROM
+		employer_user , order_form WHERE employer_user.id=order_form.erid AND
+		erid = #{erid} ORDER BY starttime DESC
+
+
+	</select>
+
+
+	<select id="selectDiscountMessage" resultType="com.bangshuo.kuaigong.po.EmployerSendDiscount"
+		useCache="false">
+
+		SELECT
+		id,username,name,TIME,regid FROM employer_user WHERE
+		DATE(TIME) >=
+		DATE_SUB(CURDATE(),
+		INTERVAL 0 DAY)
+
+	</select>
+
+	<select id="selectDiscountSendMoney" resultType="com.bangshuo.kuaigong.po.SendDispountMoney">
+
+		select * from
+		sendcoupon
+
+	</select>
+
+	<select id="selectDiscountSendMessage" resultType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		parameterType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		useCache="false">
+
+		select * FROM senddiscountmessage where
+		sendusername=#{sendusername} and
+		senddiscountstart=#{senddiscountstart};
+
+	</select>
+
+	<select id="selectDiscountSendMessageThree" resultType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		parameterType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		useCache="false">
+
+
+
+		select * FROM senddiscountmessage where
+		sendusername=#{sendusername} and
+		senddiscountthree=#{senddiscountthree};
+
+
+	</select>
+
+	<select id="selectDiscountSendMessageFive" resultType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		parameterType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		useCache="false">
+
+
+
+		select * FROM senddiscountmessage where
+		sendusername=#{sendusername} and
+		senddiscountfive=#{senddiscountfive};
+
+
+	</select>
+	<select id="selectDiscountSendMessageLong" resultType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		parameterType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		useCache="false">
+
+
+
+		select * FROM senddiscountmessage where
+		sendusername=#{sendusername} and
+		senddiscountlong=#{senddiscountlong};
+
+
+	</select>
+
+
+
+	<select id="selectDiscountMessageLongCount" resultType="com.bangshuo.kuaigong.po.EmployerSendDiscountLong"
+		parameterType="com.bangshuo.kuaigong.po.EmployerSendDiscountLong"
+		useCache="false">
+
+
+		SELECT erid,name,username,MAX(starttime) AS starttime,regid
+		,COUNT(erid)
+		senddiscountall FROM order_form ,employer_user WHERE
+		order_form.erid =
+		employer_user.id GROUP BY erid ORDER BY erid
+
+	</select>
+
+	<insert id="insertDiscountSendMessageTime" parameterType="com.bangshuo.kuaigong.po.DiscountCouponSendTime">
+		insert
+		into discount_coupon (erid,money,status,endtime)
+		values (
+		#{erid,jdbcType=INTEGER},#{money,jdbcType=VARCHAR},'可用'
+		,#{endtime,jdbcType=VARCHAR}
+		)
+	</insert>
+
+
+
+	<insert id="insertDiscountSendMessageTimeOne" parameterType="com.bangshuo.kuaigong.po.SendDispountTimeMessage"
+		flushCache="true">
+
+		INSERT INTO senddiscountmessage
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="senddiscountstart != null">
+				senddiscountstart,
+			</if>
+
+			<if test="sendusername != null">
+				sendusername,
+			</if>
+			<if test="senddiscountthree != null">
+				senddiscountthree,
+			</if>
+			<if test="senddiscountfive != null">
+				senddiscountfive,
+			</if>
+			<if test="senddiscountlong != null">
+				senddiscountlong,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="senddiscountstart != null">
+				#{senddiscountstart},
+			</if>
+			<if test="sendusername != null">
+				#{sendusername},
+			</if>
+			<if test="senddiscountthree != null">
+				#{senddiscountthree},
+			</if>
+			<if test="senddiscountfive != null">
+				#{senddiscountfive},
+			</if>
+			<if test="senddiscountlong != null">
+				#{senddiscountlong},
+			</if>
+		</trim>
+	</insert>
+
+
+	<!-- 固定刷新看是否满足工作时长 -->
+	<select id="selectHourLength" resultType="com.bangshuo.kuaigong.po.EmployeeHourLength"
+		useCache="false">
+
+
+
+		SELECT eeid ,TIMESTAMPDIFF(HOUR,startime,endtime) AS
+		hourlength FROM online_information WHERE
+		DATE(online_information.`startime`) >= DATE_SUB(CURDATE(), INTERVAL 0
+		DAY) AND TIMESTAMPDIFF(HOUR,startime,endtime) >= 10
+
+
+
+	</select>
+
+	<!-- 固定刷新看是否满足工作时长 -->
+	<select id="selectHourLengthTime" parameterType="com.bangshuo.kuaigong.po.EmployeeHourLength"
+		resultType="com.bangshuo.kuaigong.po.EmployeeHourLength" useCache="false">
+
+		select * FROM hourlengthall where
+		eeid=#{eeid}
+		and
+		flushtime=#{flushtime};
+
+
+	</select>
+
+
+	<insert id="insertHourLength" parameterType="com.bangshuo.kuaigong.po.EmployeeHourLength"
+		flushCache="true">
+
+		INSERT INTO hourlengthall
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="eeid != null">
+				eeid,
+			</if>
+
+			<if test="hourlength != null">
+				hourlength,
+			</if>
+			<if test="flushtime != null">
+				flushtime,
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="eeid != null">
+				#{eeid},
+			</if>
+			<if test="hourlength != null">
+				#{hourlength},
+			</if>
+			<if test="flushtime != null">
+				#{flushtime},
+			</if>
+
+		</trim>
+	</insert>
+
+
+
+
+
+
+</mapper>

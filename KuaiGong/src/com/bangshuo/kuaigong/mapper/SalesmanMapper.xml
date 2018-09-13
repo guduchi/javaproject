@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.SalesmanMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.Salesman">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="salesmanName" property="salesmanName" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="superiorId" property="superiorId" jdbcType="INTEGER" />
+		<result column="position" property="position" jdbcType="VARCHAR" />
+		<result column="idCard" property="idCard" jdbcType="VARCHAR" />
+		<result column="regid" property="regid" jdbcType="VARCHAR" />
+		<result column="headPortrait" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="regtime" property="regtime" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+		<result column="supername" property="supername" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.SalesmanToMany" id="selectSalesmanMany"
+		extends="BaseResultMap">
+		<result column="balance" property="balance" jdbcType="DOUBLE" />
+		<result column="latelyUse" property="latelyUse" jdbcType="VARCHAR" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
+		<result column="latitude" property="latitude" jdbcType="VARCHAR" />
+		<result column="longitude" property="longitude" jdbcType="VARCHAR" />
+		<result column="site" property="site" jdbcType="VARCHAR" />
+		<result column="intime" property="intime" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, username, password, salesmanName, address, sex, superiorId, position,
+		idCard,
+		regid, headPortrait, regtime
+	</sql>
+ 
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap"
+		parameterType="com.bangshuo.kuaigong.po.Salesman">
+		SELECT COUNT(id) as count from salesman
+		where 1=1
+		<if test="id !=null">
+			and id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="salesmanName !=null">
+			and salesmanName like  #{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and username like  #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="status !=null">
+			and status=#{status,jdbcType=VARCHAR}
+		</if>
+		<if test="position !=null">
+			and position=#{position,jdbcType=VARCHAR}
+		</if>
+		<if test="superiorId !=null">
+			and superiorId=#{superiorId,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<!-- 查询业务员详细信息 -->
+	<select id="selectMany" resultMap="selectSalesmanMany">
+		SELECT
+		salesman.*,
+		sum(salesman_wallet.balance)as balance,
+		salesman_wallet.latelyUse,
+		salesman_wallet.time
+		FROM
+		salesman
+		LEFT JOIN salesman_wallet ON salesman.id = salesman_wallet.salesmanId
+		WHERE salesman.id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查询业务员 -->
+	<select id="selectSalesman" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select a.* ,b.salesmanName AS supername from 
+		(select * from salesman ) a
+		 left join 
+		(select * from salesman ) b
+		on a.superiorId =b.id
+		WHERE 1=1
+		<if test="id !=null">
+			and a.id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="salesmanName !=null">
+			and a.salesmanName like  #{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and a.username like  #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="status !=null">
+			and a.status=#{status,jdbcType=VARCHAR}
+		</if>
+		<if test="position !=null">
+			and a.position=#{position,jdbcType=VARCHAR}
+		</if>
+		<if test="superiorId !=null">
+			and a.superiorId=#{superiorId,jdbcType=VARCHAR}
+		</if>
+		group by regtime desc
+	</select>
+
+	<!-- 查询业务员分页 -->
+	<select id="selectSalesmanPage" resultMap="BaseResultMap">
+		select a.* ,b.salesmanName AS supername from 
+		(select * from salesman ) a
+		 left join 
+		(select * from salesman ) b
+		on a.superiorId =b.id
+		WHERE 1=1
+		<if test="id !=null">
+			and a.id = #{id,jdbcType=VARCHAR}
+		</if>
+		<if test="salesmanName !=null">
+			and a.salesmanName like '%' #{salesmanName,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username !=null">
+			and a.username like '%' #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="status !=null">
+			and a.status=#{status,jdbcType=VARCHAR}
+		</if>  
+		<if test="position !=null">
+			and a.position=#{position,jdbcType=VARCHAR}
+		</if>
+		<if test="superiorId !=null">
+			and a.superiorId=#{superiorId,jdbcType=VARCHAR}
+		</if>
+		group by regtime desc
+		limit #{page},#{pageSize}
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select * from salesman
+		where 1=1
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+
+	<!--select by usernmae 判断账号是否存在 -->
+	<select id="selectByUsername" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		id
+		from salesman
+		where username = #{username,jdbcType=VARCHAR}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from salesman
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.bangshuo.kuaigong.po.Salesman">
+		insert into salesman (id, username, password,
+		salesmanName, address, sex,
+		superiorId, position, idCard,
+		regid, headPortrait, regtime,status
+		)
+		values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{salesmanName,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR},
+		#{superiorId,jdbcType=INTEGER}, #{position,jdbcType=VARCHAR},
+		#{idCard,jdbcType=VARCHAR},
+		#{regid,jdbcType=VARCHAR}, #{headPortrait,jdbcType=VARCHAR},NOW(),
+		#{status,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.Salesman">
+		insert into salesman
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="username != null">
+				username,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="salesmanName != null">
+				salesmanName,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="sex != null">
+				sex,
+			</if>
+			<if test="superiorid != null">
+				superiorId,
+			</if>
+			<if test="position != null">
+				position,
+			</if>
+			<if test="idcard != null">
+				idCard,
+			</if>
+			<if test="regid != null">
+				regid,
+			</if>
+			<if test="headportrait != null">
+				headPortrait,
+			</if>
+			<if test="regtime != null">
+				regtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="username != null">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="salesmanname != null">
+				#{salesmanname,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="superiorid != null">
+				#{superiorid,jdbcType=INTEGER},
+			</if>
+			<if test="position != null">
+				#{position,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard != null">
+				#{idcard,jdbcType=VARCHAR},
+			</if>
+			<if test="regid != null">
+				#{regid,jdbcType=VARCHAR},
+			</if>
+			<if test="headportrait != null">
+				#{headportrait,jdbcType=VARCHAR},
+			</if>
+			<if test="regtime != null">
+				#{regtime,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.Salesman">
+		update salesman
+		<set>
+			<if test="username != null">
+				username = #{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="salesmanName != null">
+				salesmanName = #{salesmanName,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null">
+				sex = #{sex,jdbcType=VARCHAR},
+			</if>
+			<if test="superiorId != null">
+				superiorId = #{superiorId,jdbcType=INTEGER},
+			</if>
+			<if test="position != null">
+				position = #{position,jdbcType=VARCHAR},
+			</if>
+			<if test="idCard != null">
+				idCard = #{idCard,jdbcType=VARCHAR},
+			</if>
+			<if test="regid != null">
+				regid = #{regid,jdbcType=VARCHAR},
+			</if>
+			<if test="headPortrait != null">
+				headPortrait = #{headPortrait,jdbcType=VARCHAR},
+			</if>
+			<if test="regtime != null">
+				regtime = #{regtime,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<!-- 修改头像 -->
+	<update id="update" parameterType="com.bangshuo.kuaigong.po.Salesman">
+		update salesman
+		<set>
+			<if test="headPortrait != null">
+				headPortrait = #{headPortrait,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.Salesman">
+		update salesman
+		set username = #{username,jdbcType=VARCHAR},
+		password = #{password,jdbcType=VARCHAR},
+		salesmanName = #{salesmanname,jdbcType=VARCHAR},
+		address = #{address,jdbcType=VARCHAR},
+		sex = #{sex,jdbcType=VARCHAR},
+		superiorId = #{superiorid,jdbcType=INTEGER},
+		position = #{position,jdbcType=VARCHAR},
+		idCard = #{idcard,jdbcType=VARCHAR},
+		regid = #{regid,jdbcType=VARCHAR},
+		headPortrait = #{headportrait,jdbcType=VARCHAR},
+		regtime = #{regtime,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

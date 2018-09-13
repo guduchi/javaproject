@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.WaitTimeMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.WaitTime" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orderid" property="orderid" jdbcType="INTEGER" />
+    <result column="starttime" property="starttime" jdbcType="VARCHAR" />
+    <result column="endtime" property="endtime" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orderid, starttime, endtime
+  </sql>
+  
+    
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wait_time
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByOrderid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wait_time
+    where orderid = #{orderid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wait_time
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.WaitTime" >
+    insert into wait_time (id, orderid, starttime, 
+      endtime)
+    values (#{id,jdbcType=INTEGER}, #{orderid,jdbcType=INTEGER}, #{startTime,jdbcType=VARCHAR}, 
+      #{endTime,jdbcType=VARCHAR})
+  </insert>
+  <!--insert into orderid , start_time  -->
+  <insert id="insertOrderidAndStartTime" parameterType="java.lang.Integer" >
+    insert into wait_time (orderid, starttime)
+    values (#{orderid,jdbcType=INTEGER}, now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.WaitTime" >
+    insert into wait_time
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderid != null" >
+        orderid,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderid != null" >
+        #{orderid,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.WaitTime" >
+    update wait_time
+    <set >
+      <if test="orderid != null" >
+        orderid = #{orderid,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null" >
+        starttime = #{startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime != null" >
+        endtime = #{endTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.WaitTime" >
+    update wait_time
+    set orderid = #{orderid,jdbcType=INTEGER},
+      starttime = #{startTime,jdbcType=VARCHAR},
+      endtime = #{endTime,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+	<update id="updateByOrderid" parameterType="java.lang.Integer" >
+    UPDATE wait_time SET endtime=NOW() 
+    WHERE orderid = #{orderid,jdbcType=INTEGER} AND (endtime IS NULL OR endtime='')
+  </update>
+</mapper>

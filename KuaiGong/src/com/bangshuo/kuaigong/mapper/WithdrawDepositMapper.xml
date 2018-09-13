@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.WithdrawDepositMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="eeid" property="eeid" jdbcType="INTEGER" />
+		<result column="cash" property="cash" jdbcType="VARCHAR" />
+		<result column="time" property="time" jdbcType="VARCHAR" />
+		<result column="desc" property="desc" jdbcType="VARCHAR" />
+		<result column="totalMoney" property="totalMoney" jdbcType="VARCHAR" />
+	<result column="queryCount" property="queryCount" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+		<result column="queryEarningsAll" property="queryEarningsAll" jdbcType="VARCHAR" />
+		<result column="withdrawConunt" property="withdrawConunt" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.WithdrawDepositToEeUser"
+		id="ToEeUserMap" extends="BaseResultMap">
+		<result column="username" property="username" />
+		<result column="name" property="name" />
+		<result column="queryCount" property="queryCount" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, eeid, cash, time,desc,totalMoney,
+	</sql>
+
+  <!-- 按照金额，总金额排序总数 -->
+  <select id="queryAllSort" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+  select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2) as totalMoney ,
+		employee_user.name
+		from withdraw_deposit,employee_user
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu1 != null">
+			and (withdraw_deposit.desc= #{btu1,jdbcType=VARCHAR}
+			<if test="btu2 != null">
+			OR withdraw_deposit.desc= #{btu2,jdbcType=VARCHAR}
+			</if>
+			)
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and
+		withdraw_deposit.eeid=employee_user.id
+		order by cash desc,totalMoney desc
+ </select>
+ <!-- 按照金额，总金额排序分页 -->
+   <select id="selectByPageInfo" resultMap="ToEeUserMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+  select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+		employee_user.name
+		from withdraw_deposit,employee_user
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		
+		<if test="btu1 != null">
+			and (withdraw_deposit.desc= #{btu1,jdbcType=VARCHAR}
+			<if test="btu2 != null">
+			OR withdraw_deposit.desc= #{btu2,jdbcType=VARCHAR}
+			</if>
+			)
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and
+		withdraw_deposit.eeid=employee_user.id
+		order by cash desc,totalMoney desc
+		limit #{page},
+		#{pageSize}
+ </select>
+ 
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap"
+		parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		SELECT 
+				COUNT(withdraw_deposit.id)as count,
+				withdraw_deposit.`desc`,
+				withdraw_deposit.time,
+				employee_user.`name`
+from	 withdraw_deposit
+LEFT JOIN employee_user on withdraw_deposit.eeid = employee_user.id
+where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu1 != null">
+			and (withdraw_deposit.desc= #{btu1,jdbcType=VARCHAR}
+			<if test="btu2 != null">
+			OR withdraw_deposit.desc= #{btu2,jdbcType=VARCHAR}
+			</if>
+			)
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+	</select>
+
+	<!-- 根据状态查询 -->
+	<select id="queryAllShouYi" resultMap="ToEeUserMap">
+		select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+		employee_user.name
+		from withdraw_deposit
+		LEFT JOIN employee_user on withdraw_deposit.eeid=employee_user.id
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and withdraw_deposit.eeid=employee_user.id
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		order by id desc
+	</select>
+
+	<select id="selectByPageShouYi" resultMap="ToEeUserMap">
+		select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+		employee_user.name
+		from withdraw_deposit
+		LEFT JOIN employee_user on withdraw_deposit.eeid=employee_user.id
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and withdraw_deposit.eeid=employee_user.id
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		order by id desc
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 根据时间模糊查询查询总数 -->
+	<select id="selectByTime6" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as cash,withdraw_deposit.time,employee_user.name
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and
+		employee_user.name
+
+		like #{name,jdbcType=VARCHAR} and
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+	<!-- 根据时间模糊查询查询分页 -->
+	<select id="selectByTime6Page" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney,employee_user.name
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and
+		employee_user.name
+
+		like #{name,jdbcType=VARCHAR} and
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 根据状态时间查询 -->
+	<select id="queryByTime6ShouYi" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2),withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney,employee_user.name
+		from withdraw_deposit,employee_user
+
+		where withdraw_deposit.eeid=employee_user.id
+
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+ 
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+
+	<!-- 根据状态时间查询 -->
+	<select id="queryByTime6PageShouYi" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney,employee_user.name
+		from withdraw_deposit,employee_user
+
+		where withdraw_deposit.eeid=employee_user.id
+
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and
+ 
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		limit #{page},#{pageSize}
+	</select>
+	<!-- 根据时间查询 -->
+	<select id="queryByTime6" resultMap="ToEeUserMap">
+		SELECT
+		withdraw_deposit.id,
+		truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,
+		withdraw_deposit.`desc`,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney ,
+		employee_user.`name`
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and 
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+	</select>
+
+	<select id="queryByTime6Page" resultMap="ToEeUserMap">
+		SELECT
+		withdraw_deposit.id,
+		truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,
+		withdraw_deposit.`desc`,
+		truncate(withdraw_deposit.totalMoney,2) as totalMoney,
+		employee_user.`name`
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and 
+  <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		limit #{page},
+		#{pageSize}
+	</select>
+	<!-- 查询名字总数 -->
+	<select id="queryWithdraw" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney ,employee_user.name
+
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+
+		and employee_user.name
+
+		like #{name,jdbcType=VARCHAR}
+	</select>
+	<!-- 查询名字分页 -->
+	<select id="queryWithdrawPaGe" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney,employee_user.name
+
+
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+
+		and employee_user.name
+
+		like #{name,jdbcType=VARCHAR} limit #{page},
+		#{pageSize}
+	</select>
+	<!-- 根据状态查询名字分页 -->
+	<select id="queryWithdrawTimeMoHuchaxun" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney ,employee_user.name
+
+
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and employee_user.name
+		like #{name,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据状态查询名字分页 -->
+	<select id="queryWithdrawPaGeTimeMoHuchaxun" resultMap="ToEeUserMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney,employee_user.name
+
+
+
+		from withdraw_deposit,employee_user
+		where withdraw_deposit.eeid=employee_user.id
+		and withdraw_deposit.desc=#{desc,jdbcType=VARCHAR}
+		and employee_user.name
+		like #{name,jdbcType=VARCHAR} limit #{page},
+		#{pageSize}
+	</select>
+	
+	
+
+	<select id="queryEarningsAll" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit" >
+	SELECT SUM(TRUNCATE(withdraw_deposit.cash,2))AS queryEarningsAll
+    FROM withdraw_deposit
+    WHERE (withdraw_deposit.desc='收益' or withdraw_deposit.desc='工资到账') 
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from withdraw_deposit
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<insert id="insert" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		insert into withdraw_deposit (id, eeid, cash,
+		time)
+		values (#{id,jdbcType=INTEGER}, #{eeid,jdbcType=INTEGER},
+		#{cash,jdbcType=VARCHAR},
+		#{time,jdbcType=VARCHAR})
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		insert into withdraw_deposit
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="eeid != null">
+				eeid,
+			</if>
+			<if test="cash != null">
+				cash,
+			</if>
+			<if test="time != null">
+				time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="eeid != null">
+				#{eeid,jdbcType=INTEGER},
+			</if>
+			<if test="cash != null">
+				#{cash,jdbcType=VARCHAR},
+			</if>
+			<if test="time != null">
+				#{time,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		update withdraw_deposit
+		<set>
+			<if test="eeid != null">
+				eeid = #{eeid,jdbcType=INTEGER},
+			</if>
+			<if test="cash != null">
+				cash = #{cash,jdbcType=VARCHAR},
+			</if>
+			<if test="time != null">
+				time = #{time,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		update withdraw_deposit
+		set eeid = #{eeid,jdbcType=INTEGER},
+		cash = #{cash,jdbcType=VARCHAR},
+		time = #{time,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+
+	<!--李奎写的代码 -->
+	<!-- 根据时间查询 -->
+	<select id="selectWithdrawDepositByTime" resultMap="BaseResultMap">
+		select withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney ,employee_user.name from
+		withdraw_deposit,employee_user
+	    where 1=1
+		<if test="chooseBtu != null">
+		and withdraw_deposit.desc=#{chooseBtu,jdbcType=VARCHAR}
+		</if>
+		<if test="queryUserName != null">
+		and employee_user.name like '%' #{queryUserName,jdbcType=VARCHAR} '%'
+		</if>
+		and
+		<![CDATA[(
+		withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+		AND withdraw_deposit.time <= #{endtime,jdbcType=VARCHAR} AND (`desc` = '提现' OR `desc` = '提现手续费')
+		)]]>
+		and withdraw_deposit.eeid=employee_user.id
+
+	</select>
+	
+	<!-- 根据时间查询分页 -->
+	<select id="selectWithdrawByYesterdayInfo" resultMap="ToEeUserMap">
+		select  withdraw_deposit.id
+
+		,truncate(withdraw_deposit.cash,2) as
+		cash,withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)
+		as totalMoney ,employee_user.name from 
+		withdraw_deposit,employee_user
+	    where 1=1
+		<if test="chooseBtu != null">
+		and withdraw_deposit.desc=#{chooseBtu,jdbcType=VARCHAR}
+		</if>
+		<if test="queryUserName != null">
+		and employee_user.name like '%' #{queryUserName,jdbcType=VARCHAR} '%'
+		</if>
+		and
+		<![CDATA[(
+		withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+		AND withdraw_deposit.time <= #{endtime,jdbcType=VARCHAR} AND (`desc` = '提现' OR `desc` = '提现手续费')
+		)]]>
+		and withdraw_deposit.eeid=employee_user.id
+		limit #{page},#{pageSize}
+	</select>
+	<!-- 查收益 -->
+	<select id="queryusername" resultMap="ToEeUserMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+		SELECT SUM(truncate(withdraw_deposit.cash,2))as queryCount ,
+			employee_user.name 
+from withdraw_deposit
+LEFT JOIN employee_user on withdraw_deposit.eeid=employee_user.id
+WHERE 1=1
+<if test=" btu1 != null">
+and (withdraw_deposit.desc=#{btu1,jdbcType=VARCHAR}
+<if test=" btu2 != null">
+OR withdraw_deposit.desc=#{btu2,jdbcType=VARCHAR}
+
+</if>
+)
+</if>
+<if test="queryusername !=null">
+and name like '%' #{queryusername,jdbcType=VARCHAR} '%'
+</if>
+<if test="starttime != null ">
+<![CDATA[ 
+	and  withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+]]>
+</if>
+<if test="endtime != null">
+<![CDATA[ 
+	and  withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+]]>
+</if>
+
+	</select>
+	
+	<!-- 根据状态查询 -->
+	<select id="selectByStatus" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDeposit">
+			select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+employee_user.name
+		from withdraw_deposit
+LEFT JOIN employee_user on withdraw_deposit.eeid=employee_user.id
+where withdraw_deposit.desc=#{btu1,jdbcType=VARCHAR} or withdraw_deposit.desc=#{btu2,jdbcType=VARCHAR}
+<![CDATA[ 
+and  withdraw_deposit.eeid<>0
+]]>
+	</select>
+	
+	<!-- 根据状态查询分页 -->
+	<select id="selectByPageStatus" resultMap="ToEeUserMap" parameterType="com.bangshuo.kuaigong.po.WithdrawDepositToEeUser">
+		select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+employee_user.name
+		from withdraw_deposit
+LEFT JOIN employee_user on withdraw_deposit.eeid=employee_user.id
+where withdraw_deposit.desc=#{btu1,jdbcType=VARCHAR} or withdraw_deposit.desc=#{btu2,jdbcType=VARCHAR}
+<![CDATA[ 
+and withdraw_deposit.eeid<>0
+]]>
+limit #{page},#{pageSize}
+	</select>
+	
+		<!-- 查询总数分页 -->
+	<select id="selectByPage" resultMap="ToEeUserMap" parameterType="java.lang.Integer">
+		select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2)as totalMoney,
+		employee_user.name
+		from withdraw_deposit,employee_user
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		
+		<if test="btu1 != null">
+			and (withdraw_deposit.desc= #{btu1,jdbcType=VARCHAR}
+			<if test="btu2 != null">
+			OR withdraw_deposit.desc= #{btu2,jdbcType=VARCHAR}
+			</if>
+			)
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and
+		withdraw_deposit.eeid=employee_user.id
+		order by time desc
+		limit #{page},
+		#{pageSize}
+	</select>
+	
+	<!-- 查询总数 -->
+	<select id="selectAll" resultMap="ToEeUserMap">
+		select withdraw_deposit.id,truncate(withdraw_deposit.cash,2) as cash,
+		withdraw_deposit.time,withdraw_deposit.desc,truncate(withdraw_deposit.totalMoney,2) as totalMoney ,
+		employee_user.name
+		from withdraw_deposit,employee_user
+		where 1=1
+		<if test="query != null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="btu1 != null">
+			and (withdraw_deposit.desc= #{btu1,jdbcType=VARCHAR}
+			<if test="btu2 != null">
+			OR withdraw_deposit.desc= #{btu2,jdbcType=VARCHAR}
+			</if>
+			)
+		</if>
+		<if test="starttime != null and endtime != null">
+			and <![CDATA[ 
+ withdraw_deposit.time >=#{starttime,jdbcType=VARCHAR}
+AND withdraw_deposit.time <=#{endtime,jdbcType=VARCHAR}
+  ]]>
+		</if>
+		and
+		withdraw_deposit.eeid=employee_user.id
+		order by time desc
+	</select>
+</mapper>

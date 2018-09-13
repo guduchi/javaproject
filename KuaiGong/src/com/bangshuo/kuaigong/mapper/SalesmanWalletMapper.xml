@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.SalesmanWalletMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.SalesmanWallet" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="salesmanId" property="salesmanId" jdbcType="INTEGER" />
+    <result column="balance" property="balance" jdbcType="DOUBLE" />
+    <result column="latelyUse" property="latelyUse" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="VARCHAR" />
+    <result column="count" property="count" jdbcType="VARCHAR" />
+  </resultMap>
+  
+<resultMap type="com.bangshuo.kuaigong.po.SalesmanWalletToUser" id="selectSalesmanWallet" extends="BaseResultMap">
+    <result column="username" property="username" jdbcType="VARCHAR"/>
+    <result column="salesmanName" property="salesmanName" jdbcType="VARCHAR"/>
+</resultMap>
+
+  <sql id="Base_Column_List" >
+    id, salesmanId, balance, latelyUse, time
+  </sql>
+  
+  <!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet">
+		SELECT COUNT(salesman_wallet.id) as count,
+				salesman.salesmanName,
+				salesman.username
+				from salesman_wallet
+				LEFT JOIN salesman on salesman_wallet.salesmanId = salesman.id
+				where 1=1
+		<if test="salesmanName !=null">
+  		and salesman.salesmanName like  #{salesmanName,jdbcType=VARCHAR} '%'
+ 		</if>
+		 <if test="username !=null">
+		and salesman.username like  #{username,jdbcType=VARCHAR} '%'
+		</if>
+	</select>
+  
+  <!-- 修改余额 -->
+  <update id="updateBalance" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet">
+	UPDATE salesman_wallet
+SET salesman_wallet.balance = #{balance,jdbcType=DOUBLE}
+WHERE
+	salesman_wallet.id =#{id,jdbcType=INTEGER}
+	</update>
+
+<!-- 查询业务员钱包 -->
+<select id="selectWallet" resultMap="selectSalesmanWallet">
+SELECT
+	salesman_wallet.id,
+	salesman_wallet.salesmanId,
+	salesman_wallet.balance,
+	salesman_wallet.latelyUse,
+	salesman_wallet.time,
+	salesman.username,
+	salesman.salesmanName
+  FROM 
+	salesman_wallet
+LEFT JOIN salesman ON salesman_wallet.salesmanId = salesman.id
+where 1 = 1
+<if test="salesmanName !=null">
+  and salesman.salesmanName like '%' #{salesmanName,jdbcType=VARCHAR} '%'
+ </if>
+  <if test="username !=null">
+and salesman.username like '%' #{username,jdbcType=VARCHAR} '%'
+</if>
+</select>
+<!-- 查询业务员钱包 -->
+<select id="selectWalletPage" resultMap="selectSalesmanWallet">
+SELECT
+	salesman_wallet.id,
+	salesman_wallet.salesmanId,
+	salesman_wallet.balance,
+	salesman_wallet.latelyUse,
+	salesman_wallet.time,
+	salesman.username,
+	salesman.salesmanName
+  FROM 
+	salesman_wallet
+LEFT JOIN salesman ON salesman_wallet.salesmanId = salesman.id
+where 1 = 1
+<if test="salesmanName !=null">
+  and salesman.salesmanName like '%' #{salesmanName,jdbcType=VARCHAR} '%'
+ </if>
+  <if test="username !=null">
+and salesman.username like '%' #{username,jdbcType=VARCHAR} '%'
+</if>
+limit #{page},#{pageSize}
+</select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from salesman_wallet
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from salesman_wallet
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet" >
+    insert into salesman_wallet (id, salesmanId, balance, 
+      latelyUse, time)
+    values (#{id,jdbcType=INTEGER}, #{salesmanid,jdbcType=INTEGER}, #{balance,jdbcType=DOUBLE}, 
+      #{latelyuse,jdbcType=VARCHAR}, #{time,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet" >
+    insert into salesman_wallet
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="salesmanid != null" >
+        salesmanId,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="latelyuse != null" >
+        latelyUse,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="salesmanid != null" >
+        #{salesmanid,jdbcType=INTEGER},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="latelyuse != null" >
+        #{latelyuse,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet" >
+    update salesman_wallet
+    <set >
+      <if test="salesmanId != null" >
+        salesmanId = #{salesmanId,jdbcType=INTEGER},
+      </if>
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="latelyUse != null" >
+        latelyUse = #{latelyUse,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.SalesmanWallet" >
+    update salesman_wallet
+    set salesmanId = #{salesmanid,jdbcType=INTEGER},
+      balance = #{balance,jdbcType=DOUBLE},
+      latelyUse = #{latelyuse,jdbcType=VARCHAR},
+      time = #{time,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

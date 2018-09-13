@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.cjUserMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.cjUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+  </resultMap>
+<resultMap type="com.bangshuo.kuaigong.po.cjUserToUser" id="cjUserToUserMapper">
+<result column="userID" property="userID"  jdbcType="INTEGER"/>
+<result column="username" property="username" jdbcType="VARCHAR"/>
+<result column="password" property="password" jdbcType="VARCHAR"/>
+</resultMap>
+  <sql id="Base_Column_List" >
+    id, username, password
+  </sql>
+
+  
+  
+  <select id="selectById" resultMap="BaseResultMap">
+  select 
+  <include refid="Base_Column_List"></include>
+  from user
+  where
+  username like #{username,jdbcType=VARCHAR} or password like #{password,jdbcType=VARCHAR}
+  </select>
+  
+ <select id="selectByPage3" resultMap="cjUserToUserMapper" parameterType="java.lang.Integer">
+  	select user.id userID,user.username,user.password 
+  	from cjuser,user
+  	where cjuser.id=user.cjid limit #{page},
+  	#{pageSize}
+  </select>
+ 
+  <select id="selectPage3" resultMap="cjUserToUserMapper">
+	select user.id userID,user.username,user.password
+	from cjuser,user where cjuser.id=user.cjid
+	
+	</select>
+	
+	<select id="login" resultMap="BaseResultMap"
+		parameterType="com.bangshuo.kuaigong.po.cjUser">
+		select
+		<include refid="Base_Column_List" />
+		from cjuser
+		where username = #{username,jdbcType=VARCHAR}
+		 and password = #{password,jdbcType=VARCHAR}
+		 
+	</select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+ 
+  <delete id="deleteUser" parameterType="java.lang.Integer" >
+    delete from user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.User" >
+    insert into user (id, username, password
+      )
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.User" >
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+ 
+</mapper>

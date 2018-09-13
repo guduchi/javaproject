@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.DiscountCouponMapper">
+	<resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.DiscountCoupon">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="erid" property="erid" jdbcType="INTEGER" />
+		<result column="money" property="money" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="endtime" property="endtime" jdbcType="VARCHAR" />
+		<result column="count" property="count" jdbcType="VARCHAR" />
+		<result column="coupon" property="coupon" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap type="com.bangshuo.kuaigong.po.DisCountToUser" id="DisCountToUser"
+		extends="BaseResultMap">
+		<result column="username" property="username" />
+		<result column="name" property="name" />
+		<result column="balance" property="balance" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, erid, money,status,endtime
+	</sql>
+
+  	<select id="selectEmplyerById"  resultType="com.bangshuo.kuaigong.po.EmployerMessageById"
+		parameterType="com.bangshuo.kuaigong.po.EmployerMessageById">
+		select employer_user.username,name,employer_user.regid
+		from employer_user
+		 where
+		id =#{erid,jdbcType=VARCHAR} 
+		
+	</select>
+  
+	<!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap"
+		parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		SELECT COUNT(discount_coupon.id) as count,
+		employer_user.`name`
+		from discount_coupon
+		LEFT JOIN employer_user on discount_coupon.erid=employer_user.id
+		WHERE 1=1
+		<if test=" query !=null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+	</select>
+
+	<!-- 查询分页总数 -->
+	<select id="selectDisCountToUser" resultMap="DisCountToUser">
+		select
+		discount_coupon.*,employer_user.name,employer_user.username,discount_coupon.money,discount_coupon.status,discount_coupon.endtime
+		from discount_coupon,employer_user
+		where discount_coupon.erid=employer_user.id and
+		employer_user.id=#{id,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查询每个信息中优惠券表 -->
+	<select id="selectCoupon" resultMap="BaseResultMap">
+		SELECT COUNT(b.id) AS coupon FROM
+		(select discount_coupon.*,employer_user.name,employer_user.username
+		from discount_coupon,employer_user
+		where discount_coupon.erid=employer_user.id and
+		employer_user.id=#{id,jdbcType=INTEGER})AS b
+	</select>
+
+	<!-- 查询分页 -->
+	<select id="selectDisCountToUserInfo" resultMap="DisCountToUser">
+		select
+		discount_coupon.*,employer_user.name,employer_user.username,discount_coupon.money,discount_coupon.status,discount_coupon.endtime
+		from discount_coupon,employer_user
+		where discount_coupon.erid=employer_user.id and
+		employer_user.id=#{id,jdbcType=INTEGER}
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 查询 -->
+	<select id="selectByPage" resultMap="DisCountToUser"
+		parameterType="java.lang.Integer">
+		select discount_coupon.*,employer_user.username,employer_user.name,
+		employer_wallet.balance
+		from discount_coupon,employer_user,employer_wallet
+		where
+		1=1
+		<if test=" query !=null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		and discount_coupon.erid=employer_user.id
+		and employer_user.id=employer_wallet.erid
+		ORDER BY discount_coupon.endtime desc
+		limit #{page},#{pageSize}
+	</select>
+
+	<!-- 查询 -->
+	<select id="selectAll" resultMap="DisCountToUser" parameterType="java.lang.String">
+		select discount_coupon.*,employer_user.username,employer_user.name
+		from discount_coupon,employer_user where
+		1=1
+		<if test=" query !=null">
+			and name like '%' #{query,jdbcType=VARCHAR} '%'
+		</if>
+		and discount_coupon.erid=employer_user.id
+		ORDER BY discount_coupon.endtime desc
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from discount_coupon
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<insert id="insert" parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		insert into discount_coupon (id, erid, money,status,endtime
+		)
+		values (#{id,jdbcType=INTEGER}, #{erid,jdbcType=INTEGER},
+		#{money,jdbcType=VARCHAR}
+		, #{status,jdbcType=VARCHAR}, #{endtime,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertDisCount" parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		insert into discount_coupon (erid,money,status,endtime)
+		values (
+		#{erid,jdbcType=INTEGER},#{money,jdbcType=VARCHAR},'可用'
+		,#{endtime,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		insert into discount_coupon
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="erid != null">
+				erid,
+			</if>
+			<if test="money != null">
+				money,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="endtime != null">
+				endtime,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="erid != null">
+				#{erid,jdbcType=INTEGER},
+			</if>
+			<if test="money != null">
+				#{money,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=VARCHAR},
+			</if>
+			<if test="money != null">
+				#{endtime,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		update discount_coupon
+		<set>
+			<if test="erid != null">
+				erid = #{erid,jdbcType=INTEGER},
+			</if>
+			<if test="money != null">
+				money = #{money,jdbcType=VARCHAR},
+			</if>
+			<if test="money != null">
+				status = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="money != null">
+				endtime = #{endtime,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.DiscountCoupon">
+		update discount_coupon
+		set erid = #{erid,jdbcType=INTEGER},
+		money = #{money,jdbcType=VARCHAR}
+		status = #{status,jdbcType=VARCHAR}
+		endtime = #{endtime,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	  <!--  查询发送数量是否存在-->
+  	<select id="selectSendCouponMessage"  resultType="com.bangshuo.kuaigong.po.SendCouponMessage">
+		select * from sendcoupon 
+	</select>
+	
+	<!-- 修改发送数量 -->
+  <update id="updateSendCouponMessage" parameterType="com.bangshuo.kuaigong.po.SendCouponMessage" >
+		update sendcoupon
+		<set>
+			<if test="moneyone != null and moneyone != ''">
+				moneyone = #{moneyone,jdbcType=VARCHAR},
+			</if>
+			<if test="moneythree != null and moneythree != ''">
+				moneythree = #{moneythree,jdbcType=VARCHAR},
+			</if>
+			<if test="moneyfive != null  and moneyfive != ''">
+				moneyfive = #{moneyfive,jdbcType=VARCHAR},
+			</if>
+			<if test="moneylong != null  and moneylong != ''">
+				moneylong = #{moneylong,jdbcType=VARCHAR},
+			</if>
+			<if test="longusenumber != null  and longusenumber != ''">
+				longusenumber = #{longusenumber,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id =#{id,jdbcType=INTEGER}
+	</update>
+	
+	  <!-- 插入需要的优惠卷数量 -->
+  <insert id="insertSendCouponMessage" parameterType="com.bangshuo.kuaigong.po.SendCouponMessage">
+		insert into sendcoupon
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="moneyone != null">
+				moneyone,
+			</if>
+			<if test="moneythree != null">
+				moneythree,
+			</if>
+			<if test="moneyfive != null">
+				moneyfive,
+			</if>
+			<if test="moneylong != null">
+				moneylong,
+			</if>
+			<if test="longusenumber != null">
+				longusenumber,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="moneyone != null">
+				#{moneyone,jdbcType=VARCHAR},
+			</if>
+			<if test="moneythree != null">
+				#{moneythree,jdbcType=VARCHAR},
+			</if>
+			<if test="moneyfive != null">
+				#{moneyfive,jdbcType=VARCHAR},
+			</if>
+			<if test="moneylong != null">
+				#{moneylong,jdbcType=VARCHAR},
+			</if>
+			<if test="longusenumber != null">
+				#{longusenumber,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	
+</mapper>

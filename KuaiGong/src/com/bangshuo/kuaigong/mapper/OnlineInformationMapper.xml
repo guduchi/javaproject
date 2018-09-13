@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.OnlineInformationMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.OnlineInformation" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="eeid" property="eeid" jdbcType="INTEGER" />
+    <result column="startime" property="startime" jdbcType="VARCHAR" />
+    <result column="endtime" property="endtime" jdbcType="VARCHAR" />
+    <result  column="status" property="status" jdbcType="VARCHAR"/>
+    <result  column="count" property="count" jdbcType="VARCHAR"/>
+    <result  column="onlinetime" property="onlinetime" jdbcType="VARCHAR"/>
+  </resultMap>
+<resultMap type="com.bangshuo.kuaigong.po.OnlineInfomationToEmploUser" id="ToEmploUserMap"  extends="BaseResultMap">
+     <result column="name" property="name" jdbcType="VARCHAR"/>
+     <result column="username" property="username" jdbcType="VARCHAR"/>
+     <result column="ontime" property="ontime" jdbcType="VARCHAR"/>
+     <result column="starttimeDay" property="starttimeDay" jdbcType="VARCHAR"  />
+     <result column="endTimeDay" property="endTimeDay" jdbcType="VARCHAR"  />
+     <result column="ChaDay" property="ChaDay" jdbcType="VARCHAR"  />
+</resultMap>
+
+ <resultMap id="FindOnlineInfoResultMap" type="com.bangshuo.kuaigong.po.EmployeeUserOnlineInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="VARCHAR" />
+    <result  column="worktime" property="worktime" jdbcType="VARCHAR"/>
+     <result  column="status" property="status" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap  id="FindOnlineDetailInfoResultMap" type="com.bangshuo.kuaigong.po.OnlineDetailInfo">
+     <result column="eeid" property="eeid" jdbcType="VARCHAR"/>
+     <result column="totalTime" property="totalTime" jdbcType="VARCHAR"/>
+     <result column="yearTime" property="yearTime" jdbcType="VARCHAR"/>
+     <result column="monthTime" property="monthTime" jdbcType="VARCHAR"/>
+      <result column="weekTime" property="weekTime" jdbcType="VARCHAR"/>
+        <result column="totalWorkTime" property="totalWorkTime" jdbcType="VARCHAR"/>
+     <result column="yearWorkTime" property="yearWorkTime" jdbcType="VARCHAR"/>
+     <result column="montWorkhTime" property="montWorkhTime" jdbcType="VARCHAR"/>
+      <result column="weekWorkTime" property="weekWorkTime" jdbcType="VARCHAR"/>
+  </resultMap>
+<!--=======================================KW===========================================================-->
+ <!--total info  -->
+ 
+ <select id="updateOnlineInfomation" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" resultMap="BaseResultMap">
+   update online_information set
+   status ='在线'
+   ,
+   endtime=null
+   ,
+   startime=NOW()
+   where eeid = #{eeid,jdbcType=INTEGER}
+ 
+ </select>
+ 
+ 
+ <select id="updateOnline" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" resultMap="BaseResultMap">
+  update online_information set
+   status =#{online,jdbcType=VARCHAR}
+   ,
+   endtime=NOW()
+   where eeid = #{eeid,jdbcType=INTEGER}
+ 
+ </select>
+ 
+ 
+ 
+ 
+ 
+   <!-- 根据在线时长排序总数 -->
+   <select id="selectstatusSort" resultMap="ToEmploUserMap">
+   SELECT
+   online_information.id,online_information.eeid,
+	online_information.startime,online_information.endtime,online_information.`status`, employee_user.`name`,
+	employee_user.username,
+    TIMESTAMPDIFF(second,online_information.startime,online_information.endtime) AS ontime
+    FROM
+	online_information
+    LEFT JOIN employee_user on online_information.eeid = employee_user.id
+    WHERE 1=1
+<if test=" name != null ">
+and name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime <=#{endtime,jdbcType=VARCHAR})]]>
+</if>
+order by ontime desc
+ </select>
+  <!-- 根据在线时长排序分页 -->
+   <select id="selectstatusPageInfo" resultMap="ToEmploUserMap">
+    SELECT
+   online_information.id,online_information.eeid,
+	online_information.startime,online_information.endtime,online_information.`status`, employee_user.`name`,
+	employee_user.username,
+TIMESTAMPDIFF(second,online_information.startime,online_information.endtime) AS ontime
+FROM
+	online_information
+LEFT JOIN employee_user on online_information.eeid = employee_user.id
+WHERE 1=1
+<if test=" name != null">
+and name like #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR}
+
+)]]>
+</if>
+	order by ontime desc
+limit #{page},#{pageSize}
+   </select>
+   
+ <select id="queryTotalOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0) AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(`status` ORDER BY online_information.id ), ',', -1) AS `status`,  SUM(TIMESTAMPDIFF(MINUTE, startime, IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	GROUP BY eeid) AS online,(SELECT  eeid,SUM(TIMESTAMPDIFF(MINUTE, order_start_time, IFNULL(endtime,NOW()))) AS worktime FROM order_form
+	    GROUP BY eeid) AS `order`  WHERE online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用' 
+	  <if test="name!=null and name!='null'">AND NAME LIKE CONCAT('%','${name}','%')</if>
+</select>
+
+
+ <select id="queryTotalOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(`status` ORDER BY online_information.id ), ',', -1) AS `status`,  SUM(TIMESTAMPDIFF(MINUTE, startime, IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	GROUP BY eeid) AS online left join (SELECT  eeid,SUM(TIMESTAMPDIFF(MINUTE, order_start_time, IFNULL(endtime,NOW()))) AS worktime FROM order_form
+	    GROUP BY eeid) AS `order`  on online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE CONCAT('%','${name}','%')</if> 
+	 <choose>
+    <when test="sort!=null and sort!='null'">
+       order by worktime desc
+    </when>
+    <otherwise>
+        order by time desc
+    </otherwise>
+</choose>
+	  LIMIT ${page},${pageSize}
+</select>
+<!--this year info  -->
+<select id="queryYearOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	 SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(`status` ORDER BY online_information.id ), ',', -1) AS `status`,SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(startime)=YEAR(NOW()),startime,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS `time`
+	 FROM online_information WHERE ( endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) GROUP BY eeid) AS online, 
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(order_start_time)=YEAR(NOW()),order_start_time,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM
+	 order_form WHERE order_start_time IS NOT NULL AND (endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) GROUP BY eeid)  AS `order`  WHERE online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用'  <if test="name!=null and name!='null'">AND NAME LIKE CONCAT('%','${name}','%')</if>
+</select>
+ <select id="queryYearOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	 SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(`status` ORDER BY online_information.id ), ',', -1) AS `status`,SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(startime)=YEAR(NOW()),startime,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS `time`
+	 FROM online_information WHERE ( endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) GROUP BY eeid) AS online left join
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(order_start_time)=YEAR(NOW()),order_start_time,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM
+	 order_form WHERE order_start_time IS NOT NULL AND (endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) GROUP BY eeid)  AS `order`  on online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if> 
+	  <choose>
+    <when test="sort!=null and sort!='null'">
+       order by worktime desc
+    </when>
+    <otherwise>
+        order by time desc
+    </otherwise>
+</choose>
+	 LIMIT ${page},${pageSize}
+</select>
+
+<!--this month info  -->
+<select id="queryMonthOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(startime)=MONTH(NOW()),startime,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS `time` FROM online_information WHERE 
+	(DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL) GROUP BY eeid)AS online,
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(order_start_time)=MONTH(NOW()),order_start_time,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM order_form WHERE 
+	(DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL) AND order_start_time IS NOT NULL GROUP BY eeid)AS `order` WHERE online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用'  <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+</select>
+ <select id="queryMonthOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(startime)=MONTH(NOW()),startime,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS `time` FROM online_information WHERE 
+	(DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL) GROUP BY eeid)AS online LEFT JOIN
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(order_start_time)=MONTH(NOW()),order_start_time,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM order_form WHERE 
+	(DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL) AND order_start_time IS NOT NULL GROUP BY eeid)AS `order` on online.eeid = order.eeid)AS info ON e.id = info.eeid
+	 WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if> 
+	  <choose>
+	    <when test="sort!=null and sort!='null'">
+	       order by worktime desc
+	    </when>
+	    <otherwise>
+	        order by time desc
+	    </otherwise>
+	</choose>
+	 LIMIT ${page},${pageSize}
+</select>
+<!--this week info  -->
+<select id="queryWeekOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	 <![CDATA[
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM (SELECT   eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,SUM(TIMESTAMPDIFF(MINUTE,IF(YEARWEEK(DATE_FORMAT(startime,'%Y-%m-%d')) = YEARWEEK(NOW()),startime,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	WHERE (IFNULL(endtime,NOW()) > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND IFNULL(endtime,NOW())< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-8) ) GROUP BY eeid) AS online,
+	(SELECT  eeid,SUM(TIMESTAMPDIFF(MINUTE,IF(YEARWEEK(DATE_FORMAT(order_start_time,'%Y-%m-%d')) = YEARWEEK(NOW()),order_start_time,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM order_form 
+	WHERE (IFNULL(endtime,NOW()) > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND IFNULL(endtime,NOW())< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-8) ) AND order_start_time IS NOT NULL GROUP BY eeid)
+	AS `order` WHERE online.eeid = order.eeid)AS info ON e.id = info.eeid ]]>
+	 WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+</select>
+ <select id="queryWeekOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	 <![CDATA[
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM (SELECT   eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,SUM(TIMESTAMPDIFF(MINUTE,IF(DATE_FORMAT(startime,'%Y-%m-%d')>SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')),startime,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	WHERE DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d') > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d')< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-7) GROUP BY eeid) AS online LEFT JOIN
+	(SELECT  eeid,SUM(TIMESTAMPDIFF(MINUTE,IF(DATE_FORMAT(order_start_time,'%Y-%m-%d')>SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')),order_start_time,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS worktime FROM order_form 
+	WHERE (DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d') > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d')< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-7) ) AND order_start_time IS NOT NULL GROUP BY eeid)
+	AS `order` ON online.eeid = order.eeid)AS info ON e.id = info.eeid ]]>
+	 WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+	  <choose>
+	    <when test="sort!=null and sort!='null'">
+	       order by worktime desc
+	    </when>
+	    <otherwise>
+	        order by time desc
+	    </otherwise>
+	</choose>
+	 LIMIT ${page},${pageSize}
+</select>
+
+<!--yesterday info  -->
+<select id="queryYesterdayOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	 <![CDATA[
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM (SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,
+	SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(startime)= 1,startime,DATE_SUB(CURDATE(),INTERVAL 1 DAY)),IFNULL(endtime,CURDATE()))) AS `time` FROM online_information 
+	 WHERE  TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY))-TO_DAYS(startime)>=0 AND TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,DATE_SUB(CURDATE(),INTERVAL 1 DAY))) = 1 GROUP BY eeid)AS online, 
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(order_start_time)= 1,order_start_time,DATE_SUB(CURDATE(),INTERVAL 1 DAY)),IFNULL(endtime,CURDATE()))) AS worktime FROM order_form 
+	 WHERE  TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY))-TO_DAYS(order_start_time)>=0 AND TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,DATE_SUB(CURDATE(),INTERVAL 1 DAY))) = 1  GROUP BY eeid)AS `order` 
+	 WHERE online.eeid = order.eeid)AS info ON info.eeid = e.id]]>
+	  WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+</select>
+ <select id="queryYesterdayOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	 <![CDATA[
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM (SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,
+	SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(startime)= 1,startime,DATE_SUB(CURDATE(),INTERVAL 1 DAY)),IFNULL(IF(TO_DAYS(NOW()) - TO_DAYS(endtime)= 0,CURDATE(),endtime),CURDATE()))) AS `time` FROM online_information 
+	 WHERE  TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY))-TO_DAYS(startime)>=0 AND  TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY)) - TO_DAYS(IFNULL(endtime,NOW())) <0 GROUP BY eeid)AS online LEFT JOIN
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(order_start_time)= 1,order_start_time,DATE_SUB(CURDATE(),INTERVAL 1 DAY)),IFNULL(IF(TO_DAYS(NOW()) - TO_DAYS(endtime)= 0,CURDATE(),endtime),CURDATE()))) AS worktime FROM order_form 
+	 WHERE  TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY))-TO_DAYS(order_start_time)>=0 AND TO_DAYS(DATE_SUB(CURDATE(),INTERVAL 1 DAY)) - TO_DAYS(IFNULL(endtime,NOW())) <0  GROUP BY eeid)AS `order` 
+	 ON online.eeid = order.eeid)AS info ON info.eeid = e.id ]]>
+	  WHERE   e.status='可用'
+ <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+	   <choose>
+	    <when test="sort!=null and sort!='null'">
+	       order by worktime desc
+	    </when>
+	    <otherwise>
+	        order by time desc
+	    </otherwise>
+	</choose>
+	  LIMIT ${page},${pageSize}
+</select>
+
+<!--today info  -->
+<select id="queryTodayOnlineInfoPage" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,
+	SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(startime)= 0,startime,CURDATE()),IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	 WHERE  TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,NOW())) = 0  GROUP BY eeid)AS online,	 
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(order_start_time)= 0,order_start_time,CURDATE()),IFNULL(endtime,NOW()))) AS worktime FROM order_form 
+	 WHERE  TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,NOW())) = 0  GROUP BY eeid) AS `order`
+	 WHERE  online.eeid = order.eeid)AS info ON info.eeid = e.id
+	  WHERE   e.status='可用'  <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+</select>
+ <select id="queryTodayOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+	(SELECT online.eeid,online.time,online.status,`order`.worktime FROM
+	(SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,
+	SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(startime)= 0,startime,CURDATE()),IFNULL(endtime,NOW()))) AS `time` FROM online_information 
+	 WHERE  TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,NOW())) = 0  GROUP BY eeid)AS online,	 
+	(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(NOW()) - TO_DAYS(order_start_time)= 0,order_start_time,CURDATE()),IFNULL(endtime,NOW()))) AS worktime FROM order_form 
+	 WHERE  TO_DAYS(NOW()) - TO_DAYS(IFNULL(endtime,NOW())) = 0  GROUP BY eeid) AS `order`
+	 WHERE  online.eeid = order.eeid)AS info ON info.eeid = e.id
+	  WHERE   e.status='可用'  <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+	   <choose>
+	    <when test="sort!=null and sort!='null'">
+	       order by worktime desc
+	    </when>
+	    <otherwise>
+	        order by time desc
+	    </otherwise>
+	</choose>
+	  LIMIT ${page},${pageSize}
+</select>
+
+<select id="queryTimeSlotOnlineInfo" resultMap="FindOnlineInfoResultMap" >
+ <![CDATA[
+	SELECT  e.id,e.username,e.name,IFNULL(info.time,0)AS `time` ,IFNULL(info.worktime,0) AS worktime,IFNULL(info.status,'完成') AS `status` FROM employee_user AS e LEFT JOIN
+(SELECT online.eeid,online.time,online.status,`order`.worktime FROM (SELECT eeid,SUBSTRING_INDEX(GROUP_CONCAT(online_information.`status` ORDER BY online_information.id ), ',', -1) AS `status` ,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(#{start}) - TO_DAYS(startime)<=0,startime,#{start}),IF(TO_DAYS(#{end}) - TO_DAYS(IFNULL(endtime,NOW())) > 0,IFNULL(endtime,NOW()),#{end}))) AS `time` FROM online_information 
+	 WHERE  TO_DAYS(#{end})-TO_DAYS(startime)>0 AND TO_DAYS(#{start}) - TO_DAYS(IFNULL(endtime,NOW())) <=0  GROUP BY eeid)AS online LEFT JOIN
+	 (SELECT  eeid,SUM(TIMESTAMPDIFF(MINUTE, IF(TO_DAYS(#{start})- TO_DAYS(order_start_time)<= 0,order_start_time,#{start}),IF(TO_DAYS(#{end}) - TO_DAYS(IFNULL(endtime,NOW())) > 0,IFNULL(endtime,NOW()),#{end}))) AS worktime FROM order_form 
+	 WHERE  (TO_DAYS(#{end})-TO_DAYS(order_start_time)>0 AND TO_DAYS(#{start}) - TO_DAYS(IFNULL(endtime,NOW())) <= 0 ) GROUP BY  eeid)
+	 AS `order` 
+	 ON online.eeid = order.eeid)AS info ON info.eeid = e.id]]>
+	  WHERE   e.status='可用' <if test="name!=null and name!='null'">AND NAME LIKE  CONCAT('%','${name}','%')</if>
+	   <choose>
+	    <when test="sort!=null and sort!='null'">
+	       order by worktime desc
+	    </when>
+	    <otherwise>
+	        order by time desc
+	    </otherwise>
+	</choose>
+	  LIMIT ${page},${pageSize}
+</select>
+<!--total、year、month、week  -->
+<select id="queryTotalOnlineDetailInfo" parameterType="java.lang.Integer" resultMap="FindOnlineDetailInfoResultMap" >
+	
+SELECT * FROM
+(SELECT eeid,SUM(TIMESTAMPDIFF(MINUTE, startime, IFNULL(endtime,NOW()))) AS `totalTime` FROM online_information WHERE eeid = #{eeid,jdbcType=INTEGER})AS total,
+(SELECT SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(startime)=YEAR(NOW()),startime,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS `yearTime` 
+FROM online_information WHERE ( endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) AND eeid = #{eeid,jdbcType=INTEGER})AS `year`,
+(SELECT SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(startime)=MONTH(NOW()),startime,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS `monthTime` FROM online_information WHERE eeid=#{eeid,jdbcType=INTEGER}
+	AND (DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL))AS `month` ,
+(SELECT  SUM(TIMESTAMPDIFF(MINUTE,IF(DATE_FORMAT(startime,'%Y-%m-%d')>SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')),startime,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS `weekTime` FROM online_information 
+	WHERE <![CDATA[ eeid=#{eeid,jdbcType=INTEGER} AND DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d') > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d')< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-7)]]>)AS `week`,
+(SELECT SUM(TIMESTAMPDIFF(MINUTE, order_start_time, IFNULL(endtime,NOW()))) AS totalWorkTime FROM order_form
+	    WHERE eeid=#{eeid,jdbcType=INTEGER} ) AS totalWork,
+(SELECT SUM(TIMESTAMPDIFF(MINUTE, IF(YEAR(order_start_time)=YEAR(NOW()),order_start_time,DATE_SUB(CURDATE(),INTERVAL DAYOFYEAR(NOW())-1 DAY)),IFNULL(endtime,NOW()))) AS yearWorkTime FROM 
+	order_form WHERE order_start_time IS NOT NULL AND  ( endtime IS NULL OR YEAR(endtime)=YEAR(NOW())) AND eeid = #{eeid,jdbcType=INTEGER})AS yearWork,
+(SELECT SUM(TIMESTAMPDIFF(MINUTE, IF(MONTH(order_start_time)=MONTH(NOW()),order_start_time,DATE_ADD(CURDATE(), INTERVAL - DAY(CURDATE()) + 1 DAY)),IFNULL(endtime,NOW()))) AS monthWorkTime FROM order_form WHERE 
+	(DATE_FORMAT(endtime, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' ) OR endtime IS NULL) AND order_start_time IS NOT NULL AND eeid=#{eeid,jdbcType=INTEGER})AS monthWork,
+(SELECT  SUM(TIMESTAMPDIFF(MINUTE,IF(DATE_FORMAT(order_start_time,'%Y-%m-%d')>SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')),order_start_time,DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) + 0 DAY)),IFNULL(endtime,NOW()))) AS weekWorkTime FROM order_form 
+	WHERE <![CDATA[ (DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d') > SUBDATE(CURDATE(),DATE_FORMAT(CURDATE(),'%w')) AND DATE_FORMAT(IFNULL(endtime,NOW()),'%Y-%m-%d')< SUBDATE(CURDATE(),IF(DATE_FORMAT(CURDATE(),'%w')=0,7,DATE_FORMAT(CURDATE(),'%w'))-7) ]]>) AND eeid=#{eeid,jdbcType=INTEGER}
+)AS weekWork
+	
+ </select>
+ 
+ <select id="queryNearlyAWeekOnlineDetailInfo" parameterType="java.lang.Integer" resultMap="BaseResultMap" >
+	SELECT eeid,startime ,ifnull(endtime,now())as endtime FROM online_information   WHERE  <![CDATA[ DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+	<= DATE(IFNULL(endtime,NOW())) AND ]]> eeid = #{eeid,jdbcType=INTEGER};
+
+</select>
+<select id="queryNearlyAWeekWorkDetailInfo" parameterType="java.lang.Integer" resultMap="BaseResultMap" >
+	SELECT eeid,order_start_time  AS startime,IFNULL(endtime,NOW())AS endtime FROM order_form   WHERE <![CDATA[ DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+	<= DATE(IFNULL(endtime,NOW())) AND ]]> eeid = #{eeid,jdbcType=INTEGER} and order_start_time IS NOT NULL;
+
+</select>
+<!--=======================================KW===========================================================  -->
+  <sql id="Base_Column_List" >
+    id, eeid, startime, endtime,statusjnn
+  </sql>
+  
+  <!-- 查询条数 -->
+	<select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.OnlineInformation">
+		SELECT COUNT(online_information.id) as count,
+	employee_user.`name`,
+	employee_user.username
+FROM
+	online_information
+LEFT JOIN employee_user on online_information.eeid = employee_user.id
+WHERE 1=1
+		<if test=" name != null">
+and name like #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime <=#{endtime,jdbcType=VARCHAR})]]>
+</if>
+	</select>
+  
+   <select id="queryInfomation886" resultMap="ToEmploUserMap" >
+ select online_information.*,employee_user.name ,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+  	and
+  	 online_information.status=#{status,jdbcType=VARCHAR}
+  	 and
+    employee_user.name like #{name,jdbcType=VARCHAR} 
+  and
+  <![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime  <=#{endtime,jdbcType=VARCHAR})
+
+]]>
+  
+  </select>
+  
+     <select id="queryInfomation886PaGe" resultMap="ToEmploUserMap" >
+ select online_information.*,employee_user.name ,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+  	and
+  	 online_information.status=#{status,jdbcType=VARCHAR}
+
+ and
+  employee_user.name like #{name,jdbcType=VARCHAR} 
+  and
+  <![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime  <=#{endtime,jdbcType=VARCHAR})
+]]>
+limit #{page},#{pageSize}
+  
+  </select>
+<select id="queryInfomationByTime" resultMap="ToEmploUserMap">
+SELECT 
+	online_information.id,online_information.eeid,online_information.startime,online_information.endtime,
+	online_information.status,
+	employee_user.name,
+	employee_user.username
+	
+FROM 
+	online_information
+LEFT JOIN employee_user ON online_information.eeid = employee_user.id 
+WHERE
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime  <=#{endtime,jdbcType=VARCHAR})
+
+
+and online_information.status=#{status,jdbcType=VARCHAR}
+]]>
+</select>
+    <select id="queryInfomationByTimePage" resultMap="ToEmploUserMap">
+SELECT 
+	online_information.id,online_information.eeid,online_information.startime,online_information.endtime,
+	online_information.status,
+	employee_user.name,
+	employee_user.username
+	
+FROM 
+	online_information
+LEFT JOIN employee_user ON online_information.eeid = employee_user.id 
+WHERE
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime  <=#{endtime,jdbcType=VARCHAR})
+
+
+and online_information.status=#{status,jdbcType=VARCHAR}
+]]>
+limit #{page},#{pageSize}
+</select>
+    
+    <select id="queryDate77" resultMap="ToEmploUserMap">
+SELECT 
+	online_information.id,online_information.eeid,online_information.startime,online_information.endtime,
+	online_information.status,
+	employee_user.name,
+	employee_user.username
+	
+FROM 
+	online_information
+LEFT JOIN employee_user ON online_information.eeid = employee_user.id 
+WHERE
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR})
+
+and online_information.eeid=#{id,jdbcType=INTEGER}
+]]>
+</select>
+ <select id="queryDatePaGe77" resultMap="ToEmploUserMap">
+ SELECT 
+	online_information.id,online_information.eeid,online_information.startime,online_information.endtime,
+	online_information.status,
+	employee_user.name,
+	employee_user.username
+	
+FROM 
+	online_information
+LEFT JOIN employee_user ON online_information.eeid = employee_user.id 
+WHERE
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.endtime <=#{endtime,jdbcType=VARCHAR})
+
+and online_information.eeid=#{id,jdbcType=INTEGER}
+]]>
+limit #{page},#{pageSize}
+
+  </select>
+  
+   
+<!--在线模糊查询 -->
+ <select id="queryInfomation8" resultMap="ToEmploUserMap" >
+ select online_information.*,employee_user.name ,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+  	and
+  	 online_information.status=#{status,jdbcType=VARCHAR}
+
+ and
+  employee_user.name like #{name,jdbcType=VARCHAR} 
+  </select>
+<!-- 在线模糊查询分页 -->
+ <select id="queryInfomation8PaGe" resultMap="ToEmploUserMap" >
+select online_information.*,employee_user.name ,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+  	and
+  	 online_information.status=#{status,jdbcType=VARCHAR}
+
+ and
+  employee_user.name like #{name,jdbcType=VARCHAR} 
+  limit #{page},#{pageSize}
+  </select>
+<!-- 根据工作中状态查询工人在线时间 -->
+  <select id="selectstatus2" resultMap="ToEmploUserMap">
+  SELECT
+	online_information.*, employee_user. NAME,
+	employee_user.username
+FROM
+	online_information,
+	employee_user
+WHERE
+	online_information.eeid = employee_user.id 
+
+AND online_information.`status` = #{status,jdbcType=VARCHAR} 
+  </select>
+  <!-- 根据工作中状态查询工人分页 -->
+  <select id="selectstatusPage2" resultMap="ToEmploUserMap">
+  SELECT
+	online_information.*, employee_user. NAME,
+	employee_user.username
+FROM
+	online_information,
+	employee_user
+WHERE
+	online_information.eeid = employee_user.id 
+
+AND online_information.`status` = #{status,jdbcType=VARCHAR} 
+limit #{page},#{pageSize}
+  </select>
+
+
+
+
+<!-- 根据完成状态查询工人在线时间 -->
+  <select id="selectstatus1" resultMap="ToEmploUserMap">
+  SELECT
+	online_information.*, employee_user. NAME,
+	employee_user.username
+FROM
+	online_information,
+	employee_user
+WHERE
+	online_information.eeid = employee_user.id 
+
+AND online_information.`status` = #{status,jdbcType=VARCHAR} 
+  </select>
+  <!-- 根据完成状态查询工人分页 -->
+  <select id="selectstatusPage1" resultMap="ToEmploUserMap">
+  SELECT
+	online_information.*, employee_user. NAME,
+	employee_user.username
+FROM
+	online_information,
+	employee_user
+WHERE
+	online_information.eeid = employee_user.id 
+
+AND online_information.`status` = #{status,jdbcType=VARCHAR} 
+limit #{page},#{pageSize}
+  </select>
+
+<select id="timeCount" resultMap="ToEmploUserMap">
+ SELECT
+online_information.id,online_information.eeid,
+online_information.startime,online_information.endtime,online_information.`status`, employee_user.`name`,
+employee_user.username,
+TIMESTAMPDIFF(second,online_information.startime,IF(online_information.endtime>DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),online_information.endtime)
+)as starttimeDay,
+TIMESTAMPDIFF(second,IF(online_information.endtime>DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),DATE_FORMAT(DATE_FORMAT(online_information.endtime,'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),online_information.endtime)
+,online_information.endtime)
+as endTimeDay,
+TIMESTAMPDIFF(day,online_information.startime,online_information.endtime) as ChaDay
+from online_information
+LEFT JOIN employee_user on online_information.eeid = employee_user.id
+WHERE 1=1
+<if test=" name != null">
+and name like #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime <=#{endtime,jdbcType=VARCHAR}
+OR (CONCAT(DATE_FORMAT(DATE_FORMAT(online_information.startime,'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S')," ",'24:00:00')<#{endtime,jdbcType=VARCHAR}
+AND online_information.endtime >= #{starttime,jdbcType=VARCHAR}
+)
+)]]>
+</if>
+	order by online_information.startime desc
+
+</select>
+
+
+<!-- 根据在线状态查询工人在线时间 -->
+  <select id="selectstatus" resultMap="ToEmploUserMap">
+SELECT
+   online_information.id,online_information.eeid,
+	online_information.startime,online_information.endtime,online_information.`status`, employee_user.`name`,
+	employee_user.username,
+TIMESTAMPDIFF(second,online_information.startime,online_information.endtime) AS ontime
+FROM
+	online_information
+LEFT JOIN employee_user on online_information.eeid = employee_user.id
+WHERE 1=1
+<if test=" name != null ">
+and name like  #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime <=#{endtime,jdbcType=VARCHAR})]]>
+</if>
+order by online_information.startime desc
+  </select>
+  <!-- 根据在线状态查询工人分页 -->
+  <select id="selectstatusPage" resultMap="ToEmploUserMap">
+SELECT
+online_information.id,online_information.eeid,
+online_information.startime,online_information.endtime,online_information.`status`, employee_user.`name`,
+employee_user.username,
+TIMESTAMPDIFF(second,online_information.startime,IF(online_information.endtime>DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),online_information.endtime)
+)as starttimeDay,
+TIMESTAMPDIFF(second,IF(online_information.endtime>DATE_FORMAT(DATE_FORMAT(date_add(online_information.startime, INTERVAL 1 DAY),'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),DATE_FORMAT(DATE_FORMAT(online_information.endtime,'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S'),online_information.endtime)
+,online_information.endtime)
+as endTimeDay,
+TIMESTAMPDIFF(day,online_information.startime,online_information.endtime) as ChaDay
+from online_information
+LEFT JOIN employee_user on online_information.eeid = employee_user.id
+WHERE 1=1
+<if test=" name != null">
+and name like #{name,jdbcType=VARCHAR} '%'
+</if>
+<if test=" status != null ">
+and online_information.status = #{status,jdbcType=VARCHAR} 
+</if>
+<if test=" starttime != null and endtime != null">
+and
+<![CDATA[ 
+	(online_information.startime >=#{starttime,jdbcType=VARCHAR}
+AND online_information.startime <=#{endtime,jdbcType=VARCHAR}
+OR (CONCAT(DATE_FORMAT(DATE_FORMAT(online_information.startime,'%Y-%m-%d'),'%Y-%m-%d %H:%i:%S')," ",'24:00:00')<#{endtime,jdbcType=VARCHAR}
+AND online_information.endtime >= #{starttime,jdbcType=VARCHAR}
+)
+)]]>
+</if>
+	order by online_information.startime desc
+    limit #{page},#{pageSize}
+  </select>
+
+
+
+
+  <!-- 统计每天在线时长 -->
+  <select id="queryday" resultMap="BaseResultMap">
+   SELECT * ,TO_DAYS(NOW()) - TO_DAYS(startime)  AS DAY FROM online_information
+    WHERE  eeid =#{eeid,jdbcType=INTEGER}  AND (TO_DAYS(startime) = TO_DAYS(NOW()) OR TO_DAYS(endtime) = 
+    TO_DAYS(NOW()) OR endtime IS NULL OR endtime =#{endtime,jdbcType=VARCHAR} )
+ </select>
+  
+  
+  
+  <!-- 统计每月在线时长 -->
+  <select id="querymonth" resultMap="BaseResultMap">
+    SELECT  *,SUM(TIMESTAMPDIFF(MINUTE, startime, IFNULL(endtime,NOW()) )) AS TIME FROM online_information
+ WHERE (endtime BETWEEN DATE_ADD(DATE_ADD(LAST_DAY(NOW()),INTERVAL 1 DAY),INTERVAL -1 MONTH) 
+ AND LAST_DAY(NOW()) OR endtime IS NULL OR endtime) AND  eeid =#{eeid,jdbcType=INTEGER}
+</select>
+  
+  
+  <!-- 统计每周在线时长 -->
+  <select id="queryweek" resultMap="BaseResultMap">
+    SELECT id,eeid,startime,endtime FROM online_information WHERE 
+ 	(YEARWEEK(DATE_FORMAT(endtime,'%Y-%m-%d')) = YEARWEEK(NOW()) OR
+ 	YEARWEEK(DATE_FORMAT(startime,'%Y-%m-%d')) = YEARWEEK(NOW()) OR
+ 	endtime IS NULL OR endtime='' )AND
+ 	eeid=#{eeid,jdbcType=INTEGER};
+  </select>
+  
+  
+  <!-- 统计总在线时长 -->
+  <select id="querytotal" resultMap="BaseResultMap">
+   SELECT SUM(TIMESTAMPDIFF(MINUTE, startime, IFNULL(endtime,NOW()))) AS TIME FROM online_information
+    WHERE eeid=#{eeid,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectById" resultMap="ToEmploUserMap" >
+  select online_information.*,employee_user.name,employee_user.username
+  from online_information,employee_user
+  where online_information.eeid=employee_user.id
+  and online_information.id=#{id,jdbcType=INTEGER}
+  </select>
+
+  
+  <select id="selectByPage" resultMap="ToEmploUserMap" parameterType="java.lang.Integer">
+  	select online_information.*,employee_user.name,employee_user.username
+  	from online_information,employee_user
+  	where 1=1
+  	<if test=" username!=null ">
+  	and name like '%' #{username,jdbcType=VARCHAR} '%'
+  	</if>
+  and	online_information.eeid=employee_user.id
+  order by online_information.startime desc
+    limit #{page},
+    #{pageSize}
+  </select>
+   <!-- 模糊查询 -->
+      <select id="selectByStartimeOrEndtimePage" resultMap="ToEmploUserMap"  >
+  	 select online_information.*,employee_user.name,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id and
+ employee_user.name like #{name,jdbcType=VARCHAR} limit #{page},#{pageSize}
+  </select>
+   <select id="selectByStartimeOrEndtime1" resultMap="ToEmploUserMap" >
+  	 select online_information.*,employee_user.name,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id and
+  employee_user.name like #{query,jdbcType=VARCHAR} 
+  </select>
+  
+    <select id="selectByStartimeOrEndtime" resultMap="ToEmploUserMap" >
+  	 select online_information.*,employee_user.name,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id and
+  employee_user.name like #{name,jdbcType=VARCHAR} 
+
+  </select>
+  <!-- 根据ID查询 -->
+   <select id="queryInfomationByIDByID" resultMap="ToEmploUserMap" >
+   
+   select online_information.*,employee_user.name,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id and
+  	 employee_user.id =#{id,jdbcType=VARCHAR}
+   </select>
+   
+   
+   
+  <select id="queryInfomation1" resultMap="ToEmploUserMap" >
+  	 select online_information.*,employee_user.name 
+
+,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+
+ and
+  employee_user.name 
+
+ like #{name,jdbcType=VARCHAR} 
+  </select>
+   
+  <select id="queryInfomation1PaGe" resultMap="ToEmploUserMap" >
+  		 select online_information.*,employee_user.name 
+
+,employee_user.username 
+  	 from online_information,employee_user
+  	 where online_information.eeid=employee_user.id 
+
+ and
+  employee_user.name 
+
+ like #{name,jdbcType=VARCHAR}  limit #{page},#{pageSize}
+  </select>
+  
+  
+  <!-- 跳模糊查询 -->
+   <select id="selectByStartimeOrEndtime2" resultMap="ToEmploUserMap"  >
+  	 select online_information.*,employee_user.name,employee_user.username 
+  	 from online_information,employee_user
+  	 where  online_information.eeid=employee_user.id and
+  employee_user.name like #{name,jdbcType=VARCHAR}
+  </select>
+	<select id="selectAll" resultMap="ToEmploUserMap">
+	select online_information.*,employee_user.name,employee_user.username
+  	from online_information,employee_user
+  	where 1=1
+  	<if test="username != null">
+  	and name like '%' #{username,jdbcType=VARCHAR} '%'
+  	</if>
+  and	online_information.eeid=employee_user.id
+  order by online_information.startime desc
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from online_information
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" >
+    insert into online_information (id, eeid, startime, 
+      endtime)
+    values (#{id,jdbcType=INTEGER}, #{eeid,jdbcType=INTEGER}, #{startime,jdbcType=VARCHAR}, 
+      #{endtime,jdbcType=VARCHAR})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" >
+    insert into online_information
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="eeid != null" >
+        eeid,
+      </if>
+      <if test="startime != null" >
+        startime,
+      </if>
+      <if test="endtime != null" >
+        endtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="eeid != null" >
+        #{eeid,jdbcType=INTEGER},
+      </if>
+      <if test="startime != null" >
+        #{startime,jdbcType=VARCHAR},
+      </if>
+      <if test="endtime != null" >
+        #{endtime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" >
+    update online_information
+    <set >
+      <if test="eeid != null" >
+        eeid = #{eeid,jdbcType=INTEGER},
+      </if>
+      <if test="startime != null" >
+        startime = #{startime,jdbcType=VARCHAR},
+      </if>
+      <if test="endtime != null" >
+        endtime = #{endtime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.OnlineInformation" >
+    update online_information
+    set eeid = #{eeid,jdbcType=INTEGER},
+      startime = #{startime,jdbcType=VARCHAR},
+      endtime = #{endtime,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+	<!-- 李奎写的代码 -->
+	<select id="selectOnlineInformationByTime" resultMap="ToEmploUserMap">
+		SELECT online_information.*,employee_user.name,employee_user.username,
+TIMESTAMPDIFF(second,online_information.startime,online_information.endtime) AS ontime
+		
+		FROM online_information,employee_user
+		where 1=1
+		<if test="name != null">
+		and name like '%' #{name,jdbcType=VARCHAR} '%'
+		</if>
+		<if test=" btu != null">
+		and online_information.status=#{btu,jdbcType=VARCHAR}
+		</if>
+		AND
+		<![CDATA[ 
+		( online_information.startime >=#{yesterday,jdbcType=VARCHAR}
+		AND online_information.startime <=#{now,jdbcType=VARCHAR})
+		]]>
+		AND (online_information.status='在线' || online_information.status='工作中')
+		<!-- 
+		<![CDATA[
+		 #{starttime,jdbcType=VARCHAR}<= NOW() AND ((startime>=#{starttime,jdbcType=VARCHAR}&&startime<=#{endtime,jdbcType=VARCHAR})
+		||(endtime>=#{starttime,jdbcType=VARCHAR}&&endtime<=#{endtime,jdbcType=VARCHAR})
+		||(startime<#{endtime,jdbcType=VARCHAR}&&(online_information.status='在线' || online_information.status='工作中')))
+		]]>
+		 -->
+		AND online_information.eeid=employee_user.id
+	</select>
+	<!-- 李奎写的代码 昨日在线分页 -->
+	
+	<select id="selectOnlineInformationByTimeInfo" resultMap="ToEmploUserMap">
+		SELECT online_information.*,employee_user.name,employee_user.username,TIMESTAMPDIFF(second,online_information.startime,online_information.endtime) AS ontime
+		  FROM online_information,employee_user
+
+		where 1=1
+		<if test=" name != null">
+		and name like '%' #{name,jdbcType=VARCHAR} '%'
+		</if>
+		<if test=" btu != null">
+		and online_information.status=#{btu,jdbcType=VARCHAR}
+		</if>
+		and
+		<![CDATA[ 
+		( online_information.startime >=#{yesterday,jdbcType=VARCHAR}
+		AND online_information.startime <=#{now,jdbcType=VARCHAR})
+		]]>
+		AND (online_information.status='在线' || online_information.status='工作中')
+		<!-- 
+		<![CDATA[
+		 #{starttime,jdbcType=VARCHAR}<= NOW() AND ((startime>=#{starttime,jdbcType=VARCHAR}&&startime<=#{endtime,jdbcType=VARCHAR})
+		||(endtime>=#{starttime,jdbcType=VARCHAR}&&endtime<=#{endtime,jdbcType=VARCHAR})
+		||(startime<#{endtime,jdbcType=VARCHAR}&&(online_information.status='在线' || online_information.status='工作中')))
+		]]>
+		 -->
+		AND online_information.eeid=employee_user.id
+		limit #{page},#{pageSize}
+	</select>
+	
+	<!-- 在线时间分页 
+	
+	<select id="selectOnlineInformationByTimeInfo" resultMap="ToEmploUserMap">
+		SELECT online_information.*,employee_user.name,employee_user.username  FROM online_information,employee_user
+		where
+		<![CDATA[
+		 #{starttime,jdbcType=VARCHAR}<= NOW() AND ((startime>=#{starttime,jdbcType=VARCHAR}&&startime<=#{endtime,jdbcType=VARCHAR})
+		|| (endtime>=#{starttime,jdbcType=VARCHAR}&&endtime<=#{endtime,jdbcType=VARCHAR})
+		|| (startime<#{endtime,jdbcType=VARCHAR}&&(online_information.status='在线'|| online_information.status='工作中')))
+		]]>
+		and online_information.eeid=employee_user.id
+		limit #{page},#{pageSize}
+	</select>
+	-->
+	
+	<update id="updateOnlineStatusByEeid" parameterType="java.lang.Integer" >
+    update online_information
+    set
+      `status` = '在线'
+    where eeid = #{eeid,jdbcType=INTEGER} and endtime is null
+  </update>
+	
+</mapper>

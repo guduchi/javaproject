@@ -1,0 +1,126 @@
+.main_box {
+	width: 100%;
+	height: 500px
+}
+
+.sbox_nav {
+	height: 14%;
+	/*background-color: red;*/
+	padding: 0 10px
+}
+
+.sbox_contant {
+	height: 80%;
+	/*background-color: #eee;*/
+	padding: 10px;
+	border: 1px solid rgb(96, 125, 165);
+	margin:0 6px
+	
+}
+
+.sbox_chart {
+	float:left;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	/* padding: 0 10px */
+}
+
+.sbox_nav div {
+	float: left;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box; /* Firefox */
+	-webkit-box-sizing: border-box; /* Safari */
+	width: 20%;
+	font-size: 20px;
+	text-align: center;
+	color: #000;
+	background-color: #fff;
+	margin-right: 10px;
+	line-height: 52px;
+	margin-top: 10px;
+	border: 1px solid rgb(96, 125, 165);
+	position: relative;
+	z-index: 100;
+	cursor: pointer
+}
+
+.sbox_nav div:first-child {
+	line-height: 59px;
+	border-bottom: 1px solid #fff;
+}
+
+.sbox_c {
+	display: none
+}
+
+.sbox_c:first-child {
+	display: block
+}
+
+.sbox_contant_order,.sbox_contant_income,.sbox_contant_with
+,.sbox_contant_profit,.sbox_contant_go {
+	float: left;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box
+}
+
+.sbox_contant_order {
+	width: 25%;
+	/*background-color: #eee;*/
+	margin: 10px 0;
+}
+
+.contant_chart {
+	width: 140px;
+	height: 140px;
+	background: red;
+	-moz-border-radius: 70px;
+	-webkit-border-radius: 70px;
+	border-radius: 70px;
+	text-align: center;
+	line-height:140px;
+	margin: 0 auto;
+	font-size: 25px;
+	color: #fff;
+}
+
+.sbox_contant_income {
+	width: 25%;
+	/*background-color: #fff;*/
+	margin: 10px 0;
+}
+
+.sbox_contant_with {
+	width: 25%;
+	/*background-color: #eee;*/
+	margin: 10px 0;
+}
+
+.sbox_contant_profit {
+	width: 25%;
+	/*background-color: #fff;*/
+	margin: 10px 0;
+}
+
+.sbox_contant_go {
+	width: 25%;
+	/*background-color: #eee;*/
+	margin: 10px 0;
+}
+
+.contant_txt {
+	width: 100%;
+	font-size: 16px;
+	color: #06f;
+	line-height: 36px;
+	text-align: center;
+	margin: 0 auto
+}
+/* .contant_chart{
+	width: 100%;
+	height: 176px;
+	text-align: center;
+	border:1px solid #eee;
+} */

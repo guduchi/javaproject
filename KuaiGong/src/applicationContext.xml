@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd 
+		http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+	<context:property-placeholder location="classpath:db.properties" />
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 连接活跃最大值（最大连接数） -->
+		<property name="maxActive" value="10" />
+		<!-- 最大空闲连接数 -->
+		<property name="maxIdle" value="5" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:SqlMapConfig.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- mapper代理扫描方式 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.bangshuo.kuaigong.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+
+	<task:annotation-driven scheduler="myScheduler" />
+	<task:scheduler id="myScheduler" pool-size="10"></task:scheduler>
+
+	
+	
+	<bean  class="com.bangshuo.kuaigong.controller.EmployerSendDiscountController" />
+
+
+
+	<!-- 配置自定义的时间任务(Job) -->
+	<bean id="myJob"
+		class="com.bangshuo.kuaigong.controller.EmplyeeSendSmsAllController" />
+		
+		
+	<!-- 加载service -->
+	<bean id="EmplyeeSendAdviceAllService"
+		class="com.bangshuo.kuaigong.service.EmplyerSendAdviceAllService" />
+<!-- 加载service -->
+	<bean id="EmplyerSendDispountAllService"
+		class="com.bangshuo.kuaigong.service.EmplyerSendDispountAllService" />
+
+	<bean id="EmplyeeSendSmsAllService" class="com.bangshuo.kuaigong.service.EmplyeeSendSmsAllService" />
+	<bean id="RechargeService" class="com.bangshuo.kuaigong.service.RechargeService" />
+	<bean id="cjUserService" class="com.bangshuo.kuaigong.service.cjUserService" />
+	<bean id="UserService" class="com.bangshuo.kuaigong.service.UserService" />
+	<bean id="AppraiseService" class="com.bangshuo.kuaigong.service.AppraiseService" />
+	<bean id="DiscountCouponService" class="com.bangshuo.kuaigong.service.DiscountCouponService" />
+	<bean id="EmployeeLocationService" class="com.bangshuo.kuaigong.service.EmployeeLocationService" />
+	<bean id="EmployeeUserService" class="com.bangshuo.kuaigong.service.EmployeeUserService" />
+	<bean id="EmployerLocationService" class="com.bangshuo.kuaigong.service.EmployerLocationService" />
+	<bean id="EmployerScaleService" class="com.bangshuo.kuaigong.service.EmployerScaleService" />
+	<bean id="EmployerUserService" class="com.bangshuo.kuaigong.service.EmployerUserService" />
+	<bean id="HalfTimeService" class="com.bangshuo.kuaigong.service.HalfTimeService" />
+	<bean id="OnlineInformationService" class="com.bangshuo.kuaigong.service.OnlineInformationService" />
+	<bean id="OrderFormService" class="com.bangshuo.kuaigong.service.OrderFormService" />
+	<bean id="WalletService" class="com.bangshuo.kuaigong.service.WalletService" />
+	<bean id="WithdrawDepositService" class="com.bangshuo.kuaigong.service.WithdrawDepositService" />
+	<bean id="ApplyService" class="com.bangshuo.kuaigong.service.ApplyService" />
+	<bean id="CompanyService" class="com.bangshuo.kuaigong.service.CompanyService" />
+	<bean id="EmployerUserWalletService" class="com.bangshuo.kuaigong.service.EmployerUserWalletService" />
+	<bean id="WaitTimeService" class="com.bangshuo.kuaigong.service.WaitTimeService" />
+	<bean id="EmployeeOrderRecordService"
+		class="com.bangshuo.kuaigong.service.EmployeeOrderRecordService" />
+	<bean id="SalesmanService" class="com.bangshuo.kuaigong.service.SalesmanService" />
+	<bean id="SalesmanSignInService" class="com.bangshuo.kuaigong.service.SalesmanSignInService" />
+	<bean id="SalesmanVersionService" class="com.bangshuo.kuaigong.service.SalesmanVersionService" />
+	<bean id="SalesmanWalletService" class="com.bangshuo.kuaigong.service.SalesmanWalletService" />
+	<bean id="superUserService" class="com.bangshuo.kuaigong.service.superUserService" />
+	<bean id="WechatNoticeService" class="com.bangshuo.kuaigong.service.WechatNoticeService" />
+	<bean id="SalesmanDetailService" class="com.bangshuo.kuaigong.service.SalesmanDetailService" />
+	<bean id="CancelOrderService" class="com.bangshuo.kuaigong.service.CancelOrderService" />
+	<bean id="BlacklistService" class="com.bangshuo.kuaigong.service.BlacklistService" />
+	<bean id="HourlengthallService" class="com.bangshuo.kuaigong.service.HourlengthallService" />
+	<bean class="com.bangshuo.kuaigong.controller.EmployeeWorkHourLength" />
+	
+	<!-- 事物管理器 对mybatis操作数据库事务控制，spring使用的是jdbc的事务控制类 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 传播行为 -->
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="find*" propagation="REQUIRED" />
+			<tx:method name="get*" propagation="REQUIRED" />
+			<tx:method name="select*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.bangshuo.kuaigong.service.*.*(..))" />
+	</aop:config>
+</beans>

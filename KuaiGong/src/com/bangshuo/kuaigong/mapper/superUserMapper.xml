@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.superUserMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.superUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+  
+ </resultMap>
+  <sql id="Base_Column_List" >
+    id, username, password
+  </sql>
+  
+  <select id="login" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.superUser">
+  select
+		*
+		from super_user
+		where username = #{username,jdbcType=VARCHAR}
+		 and password = #{password,jdbcType=VARCHAR}
+  </select>
+   
+ <select id="selectByPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select * from super_user limit #{page},
+  	#{pageSize}
+  </select>
+ 
+  <select id="selectPage" resultMap="BaseResultMap">
+	select
+	<include refid="Base_Column_List" />
+	from super_user
+	</select>
+		<update id="updateSuperUser"  parameterType="com.bangshuo.kuaigong.po.superUser">
+	update super_user 
+	<set>
+	<if test="username != null">
+	      username =#{username,jdbcType=VARCHAR},
+	</if>	
+	<if test="password != null">
+	    password = #{password,jdbcType=VARCHAR},
+	</if>
+	</set>
+	where super_user.id=#{id,jdbcType=INTEGER}
+	</update>
+	
+	<delete id="deleteSuperUser"  parameterType="java.lang.Integer">
+	delete from super_user 
+    where super_user.id =#{id,jdbcType=INTEGER}
+	</delete>
+	
+<select id="selectSuperUser" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.superUser">
+   select * from super_user where username=#{username,jdbcType=VARCHAR}
+	</select>
+   <insert id="addSuperUser"  parameterType="com.bangshuo.kuaigong.po.superUser">
+   insert into super_user (username,password) values (#{username,jdbcType=VARCHAR},
+ #{password,jdbcType=VARCHAR})
+   </insert>
+	
+</mapper>

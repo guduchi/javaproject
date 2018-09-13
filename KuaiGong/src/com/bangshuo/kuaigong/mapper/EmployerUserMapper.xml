@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bangshuo.kuaigong.mapper.EmployerUserMapper" >
+  <resultMap id="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployerUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="companyname" property="companyname" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="shielc" property="shielc" jdbcType="VARCHAR" />
+   <result column="status" property="status" jdbcType="VARCHAR"  />
+   <result column="hand" property="hand" jdbcType="VARCHAR"/>
+   <result column="grade" property="grade" jdbcType="VARCHAR"/>
+   <result column="time" property="time" jdbcType="VARCHAR"/>
+   <result column="count" property="count" jdbcType="VARCHAR"/>
+   <result column="regid" property="regid" jdbcType="VARCHAR"/>
+  </resultMap>
+ <!--  
+  <resultMap  id="selectEmployerScale" extends="BaseResultMap" type="com.bangshuo.kuaigong.po.EmployerUserToScale" >
+  <result property="grade" column="grade" jdbcType="VARCHAR"/>
+ </resultMap>
+ --> 
+
+ <!-- 查询雇主关联的信息-->
+  <resultMap type="com.bangshuo.kuaigong.po.EmployerUserToLocation" id="selectEmployerLocation" extends="BaseResultMap">
+  <result property="longitude" column="longitude" jdbcType="VARCHAR"/>
+  <result  property="latitude" column="latitude" jdbcType="VARCHAR"/>
+   <result property="credits" column="credits" jdbcType="VARCHAR"/>
+   <result property="presentintegral" column="presentintegral" jdbcType="VARCHAR"/>
+   <result property="money" column="money" jdbcType="VARCHAR"/>
+   <result  property="Mstatus" column="Mstatus" jdbcType="VARCHAR"/>
+   <result property="starlevel" column="starlevel" jdbcType="VARCHAR"/>
+   <result property="payment" column="payment" jdbcType="VARCHAR"/>
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    id, username, password, companyname, name, shielc,status,hand,grade,time
+  </sql>
+
+  <!-- 根据雇主电话号更新状态 -->
+  
+  
+    <update id="updateStatus" parameterType="java.lang.String" >
+    update employer_user
+    <set >
+     <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+</set>
+    where username = #{username,jdbcType=VARCHAR}
+</update>
+  <!-- 查询雇主姓名根据ID -->
+  <select id="selectByusernameOrname" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerUser">
+  select id,username,name from employer_user
+  where employer_user.id=#{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据ID查询姓名 -->
+  
+  <select id="employerUserUsername" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerUser">
+  select username,regid from employer_user
+  where employer_user.id=#{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查雇主个数 -->
+ <select id="selectNum" resultMap="BaseResultMap" parameterType="com.bangshuo.kuaigong.po.EmployerUser">
+		SELECT COUNT(id) as count from employer_user
+		where 1=1
+		<if test="name != null">
+			and employer_user.name like  #{name,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username != null">
+			and employer_user.username like  #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="erid != null">
+			and employer_user.id = #{erid,jdbcType=VARCHAR}
+		</if>
+		<if test="btu != null">
+			and employer_user.status = #{btu,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+   <!-- 查询 -->
+	<select id="selectByAll" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		SELECT * FROM employer_user where 1=1
+		<if test="name != null">
+			and employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username != null">
+			and employer_user.username like '%' #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="erid != null">
+			and employer_user.id = #{erid,jdbcType=VARCHAR}
+		</if>
+		<if test="btu != null">
+			and employer_user.status = #{btu,jdbcType=VARCHAR}
+		</if>
+	ORDER BY time desc
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectByAllPage" resultMap="BaseResultMap">
+		SELECT *
+		FROM employer_user where 1=1
+		<if test="name != null">
+			and employer_user.name like '%' #{name,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="username != null">
+			and employer_user.username like '%' #{username,jdbcType=VARCHAR} '%'
+		</if>
+		<if test="erid != null">
+			and employer_user.id = #{erid,jdbcType=VARCHAR}
+		</if>
+		<if test="btu != null">
+			and employer_user.status = #{btu,jdbcType=VARCHAR}
+		</if>
+		ORDER BY  time desc
+	    limit #{page},#{pageSize}
+	</select>
+  
+  
+  
+<!-- 修改密码 -->
+ 
+  <update id="updataPWD" parameterType="java.lang.Integer" >
+    update employer_user
+    <set >
+     <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+</set>
+    where id = #{id,jdbcType=INTEGER}
+</update>
+<!--查询密码 -->
+<select id="selectPWD" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+ select employer_user.id,employer_user.password,employer_user.username
+ from employer_user where
+ employer_user.id=#{id,jdbcType=INTEGER}
+</select>
+
+  <select id="selectByPageLocation" resultMap="selectEmployerLocation" parameterType="java.lang.Integer">
+      SELECT employer_user.*,employer_scale.credits,employer_scale.presentintegral,employer_location.longitude,employer_location.latitude,appraise.starlevel,order_form.payment
+FROM employer_user,employer_scale,employer_location,discount_coupon,appraise,order_form
+WHERE employer_user.id=employer_scale.erid and employer_user.id=employer_location.erid and employer_user.id=discount_coupon.erid and employer_user.id=appraise.erid 
+  </select>
+   <!-- 全部分页总数 -->
+  <select id="selectUserLocation" resultMap="selectEmployerLocation"  parameterType="java.lang.Integer">
+	
+  SELECT DISTINCT employer_user.*, employer_scale.credits,employer_scale.presentintegral,employer_location.longitude,employer_location.latitude,floor(avg(appraise.starlevel)) as starlevel
+FROM employer_user
+
+left join  employer_scale on employer_user.id=employer_scale.erid
+left join  employer_location on employer_user.id=employer_location.erid
+
+left join  appraise on employer_user.id=appraise.erid 
+where
+employer_user.id = #{id,jdbcType=INTEGER}
+
+<!--  
+,employer_scale,employer_location,discount_coupon,appraise
+WHERE employer_user.id=employer_scale.erid and employer_user.id=employer_location.erid and employer_user.id=discount_coupon.erid and employer_user.id=appraise.erid and employer_user.id = #{id,jdbcType=INTEGER}
+-->
+   </select>
+	 <!-- 全部分页 -->
+	<select id="selectUserLocationPaGe" resultMap="selectEmployerLocation" parameterType="java.lang.Integer">
+	<!-- 
+  SELECT  DISTINCT employer_user.*,employer_scale.credits,employer_scale.presentintegral,employer_location.longitude,employer_location.latitude,appraise.starlevel
+FROM employer_user,employer_scale,employer_location,discount_coupon,appraise
+WHERE employer_user.id=employer_scale.erid and employer_user.id=employer_location.erid and employer_user.id=discount_coupon.erid and employer_user.id=appraise.erid   and employer_user.id = #{id,jdbcType=INTEGER}
+ -->	
+  SELECT DISTINCT employer_user.*, employer_scale.credits,employer_scale.presentintegral,employer_location.longitude,employer_location.latitude,floor(avg(appraise.starlevel)) as starlevel
+FROM employer_user
+left join  employer_scale on employer_user.id=employer_scale.erid
+left join  employer_location on employer_user.id=employer_location.erid
+left join  appraise on employer_user.id=appraise.erid
+where
+employer_user.id = #{id,jdbcType=INTEGER}
+limit #{page},#{pageSize}
+	</select>
+	
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  SELECT employer_user.id,employer_user.username,employer_user.`name`,employer_user.shielc,employer_user.status,employer_user.companyname,employer_user.hand,employer_user.grade
+    FROM employer_user
+    where employer_user.id = #{id,jdbcType=INTEGER}
+  </select>
+ <!-- 模糊查询分页 -->
+ <select id="selectByUsernmaeOrName" resultMap="BaseResultMap" >
+  		SELECT employer_user.id,employer_user.username,employer_user.`name`,employer_user.shielc,employer_user.status,employer_user.companyname,employer_user.hand,employer_user.grade
+    FROM employer_user
+where username like #{username,jdbcType=VARCHAR} OR name like #{name,jdbcType=VARCHAR}
+</select>
+<!-- 模糊查询分页 -->
+ <select id="MHselectByPage" resultMap="BaseResultMap">
+  	SELECT employer_user.id,employer_user.username,employer_user.`name`,employer_user.shielc,employer_user.status,employer_user.companyname,employer_user.hand,employer_user.grade
+    FROM  employer_user where  username like #{username,jdbcType=VARCHAR} OR  name like #{name,jdbcType=VARCHAR} limit #{page},#{pageSize}
+  </select>
+ 
+ <!-- 总查询分页 -->
+  <select id="selectByPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	SELECT employer_user.id,employer_user.username,employer_user.`name`,employer_user.shielc,employer_user.status,employer_user.companyname,employer_user.grade
+    FROM employer_user limit #{page},#{pageSize}
+  </select>
+ <!-- 总查询分页 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+	SELECT employer_user.id,employer_user.username,employer_user.`name`,employer_user.shielc,employer_user.status,employer_user.companyname,employer_user.grade
+    FROM employer_user
+
+   </select>
+	
+	
+	
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from employer_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bangshuo.kuaigong.po.EmployerUser" >
+    insert into employer_user (id, username, password, 
+      companyname, name,shielc,
+      status
+      )
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{companyname,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{shielc,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR}
+      
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bangshuo.kuaigong.po.EmployerUser" >
+    insert into employer_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="companyname != null" >
+        companyname,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="shielc != null" >
+        shielc,
+      </if>
+     <if test="status != null">
+     status
+     </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="companyname != null" >
+        #{companyname,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+   <if test="shielc != null" >
+        #{shielc,jdbcType=VARCHAR},
+      </if>
+       <if test="status!=null">
+       #{status,jdbcType=VARCHAR}
+       </if>
+    </trim>
+    </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.bangshuo.kuaigong.po.EmployerUser" >
+    update employer_user
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="companyname != null" >
+        companyname = #{companyname,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="shielc != null" >
+        shielc = #{shielc,jdbcType=VARCHAR},
+      </if>
+     <if test="status!=null">
+     status= #{status,jdbcType=VARCHAR},
+     </if>
+     <if test="grade!=null">
+     grade=#{grade,jdbcType=VARCHAR},
+     </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+ <update id="updateByPrimaryKey" parameterType="com.bangshuo.kuaigong.po.EmployerUser" >
+    update employer_user
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="companyname != null" >
+        companyname = #{companyname,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+     <if test="status !=null">
+     status= #{status,jdbcType=VARCHAR},
+     </if>
+     <if test="grade !=null">
+     grade=#{grade,jdbcType=VARCHAR}
+     </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
